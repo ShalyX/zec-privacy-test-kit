@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "request_sha256": "f0e6d6877ebb55a1f88e41c4d3d80ea5b4d0c127bd2c5f25511db55371468fb9",
+  "network_scope": "local regtest",
+  "checks": [
+    {
+      "check": "recipient_preflight",
+      "payment_index": "",
+      "status": "pass",
+      "reason": "Wallet validated a shielded receiver",
+      "evidence": {
+        "address_sha256": "3c948353a5d03e08e08086ca88ce6e5bf222ff919e882bb21fd2c85830b64f56",
+        "network_hint": "regtest-or-testnet",
+        "memo_present": false,
+        "label_present": false,
+        "message_present": false,
+        "rpc_validated": true,
+        "receiver_types": [
+          "orchard",
+          "p2pkh",
+          "sapling"
+        ]
+      }
+    },
+    {
+      "check": "recipient_observation",
+      "status": "pass",
+      "evidence": {
+        "txid": "286f97d8e1daaf629d7d766b033f0989c15d987892fc94b71a4d8ab4e9345b93",
+        "wallet_synced": true,
+        "wallet_height": 118,
+        "node_height": 118,
+        "chain_status": "mined",
+        "confirmations": 1,
+        "account_sha256": "501f91848ea46df61485db1e4779e75b082b69afd11932b4a0729b3a564dc358",
+        "received_output_count": 1,
+        "matching_shielded_output_count": 1,
+        "matching_pools": [
+          "ironwood"
+        ]
+      },
+      "reason": "Recipient wallet decrypted a confirmed shielded note of the requested amount"
+    },
+    {
+      "check": "canary_leak",
+      "status": "pass",
+      "reason": "No supplied canary found",
+      "evidence": {
+        "files_scanned": 1,
+        "findings": []
+      }
+    }
+  ],
+  "limits": [
+    "Wallet observation proves only this wallet's view of a confirmed note.",
+    "Canary scan covers only supplied files and literal markers.",
+    "No network observer, RPC transport, browser telemetry, or external logs were tested."
+  ]
+}

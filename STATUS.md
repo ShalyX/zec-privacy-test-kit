@@ -34,4 +34,3 @@ M-01b is unverified. The local regtest proof is real but isolated; public Testne
 **Next action:** perform M-01b on public Testnet, expand ZIP-321 and wallet validation cases, then make one command orchestrate the scenario safely. There is no deployment or public repository yet. Local commit `d37de93` records the first code and evidence slice.
 
 Provisional remaining budget: up to 80 focused hours plus calendar buffer through Oct 28. Actual capacity is unknown. Backlog: hosted report viewer, multi-wallet adapters, additional privacy checks. No pending concept choice.
-

@@ -37,4 +37,3 @@ Canonical direction: [project brief](PROJECT_BRIEF.md). Official event rules che
 - Final submission fields, video constraints, and license/IP terms beyond the public Rules/FAQ need a fresh check inside the registered account before packaging.
 - Current adapter: Zallet 0.1.0-beta.3 plus Zebra 6.4.2 on local regtest. Public Testnet wallet sync and funding remain M-01b decisions.
 - Network-level anonymity and leaks outside supplied surfaces are outside the verified claim.
-

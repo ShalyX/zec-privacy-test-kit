@@ -31,6 +31,7 @@ Updated: **2026-10-04, Africa/Lagos**. Lifecycle: **M-01a local feasibility pass
 
 M-01b is unverified. The local regtest proof is real but isolated; public Testnet funds, sync, and a separate recipient scan are still needed. The cloned `zcash-devtool` currently requires Rust 1.88; Rust is absent and the official toolchain host did not resolve from this machine. Public Testnet is due to activate NU7 around Oct 6, so validate the current wallet/node versions then. Also inspect registered-only submission fields before final package.
 
-**Next action:** perform M-01b on public Testnet, expand ZIP-321 and wallet validation cases, then make one command orchestrate the scenario safely. There is no deployment, public repository, or project commit yet.
+**Next action:** perform M-01b on public Testnet, expand ZIP-321 and wallet validation cases, then make one command orchestrate the scenario safely. There is no deployment or public repository yet. Local commit `d37de93` records the first code and evidence slice.
 
 Provisional remaining budget: up to 80 focused hours plus calendar buffer through Oct 28. Actual capacity is unknown. Backlog: hosted report viewer, multi-wallet adapters, additional privacy checks. No pending concept choice.
+

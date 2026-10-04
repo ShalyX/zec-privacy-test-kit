@@ -25,4 +25,3 @@ The first gate is a real testnet transaction with trustworthy observation of shi
 |---|---|---|
 | 2026-10-04 | User locked the payment privacy test kit. | Chosen over a generic checkout and a sealed-bid market because it targets a documented privacy failure mode and offers a narrower, reproducible build. |
 | 2026-10-04 | Target Core & Tooling; build new code during the event window. | Aligns with the event's tooling track and existing-product restriction. |
-

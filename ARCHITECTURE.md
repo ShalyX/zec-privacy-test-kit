@@ -40,4 +40,3 @@ Unknowns: public Testnet funding and sync, behavior across the coming NU7 Testne
 | 2026-10-04 | Separate `pass`, `fail`, and `unverified`; no universal privacy score. | Prevents a partial test from claiming comprehensive anonymity. |
 | 2026-10-04 | Local regtest proof first; public Testnet receipt remains mandatory. | Verified the core path without pretending the isolated chain is public evidence. |
 | 2026-10-04 | Python standard-library CLI with Zallet read-only RPC. | The official Rust host was unreachable; Zallet and Zebra release binaries worked in WSL. |
-

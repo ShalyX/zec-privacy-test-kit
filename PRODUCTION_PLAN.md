@@ -23,4 +23,3 @@ If public Testnet funding or sync fails by Oct 7, evaluate one documented altern
 ## Scope and finish conditions
 
 Required: a truthful privacy boundary, genuine Zcash integration, reproducible run, open-source code, and timely submission. Optional features are cut in this order: hosted viewer, integrations beyond one wallet, extra leak classes, branding polish. No mainnet funds or user secrets enter the test process. Recheck the official registered submission form and rules before final packaging. Create the QA report against the exact final commit.
-

@@ -202,6 +202,7 @@ def observe(wallet, txid, expected_zat, account_uuid):
                                "confirmations": view.get("confirmations", 0),
                                "account_sha256": digest(account_uuid),
                                "received_output_count": len(outputs),
+                               "observed_pools": sorted({entry.get("pool", "unknown") for entry in outputs}),
                                "matching_shielded_output_count": len(shielded),
                                "matching_pools": sorted({entry["pool"] for entry in shielded})})
     if view.get("status") == "mined" and view.get("confirmations", 0) >= 1 and shielded:
@@ -243,6 +244,8 @@ def main(argv=None):
     parser.add_argument("--canary-file", type=Path, help="One synthetic canary per line")
     parser.add_argument("--log", type=Path, action="append", default=[], help="App log to scan")
     parser.add_argument("--report", type=Path, required=True, help="Output JSON path")
+    parser.add_argument("--network", choices=["regtest", "testnet", "mainnet"],
+                        help="Operator-asserted network; recorded as an assertion")
     args = parser.parse_args(argv)
     try:
         uri = args.uri_file.read_text(encoding="utf-8").strip() if args.uri_file else args.uri
@@ -275,7 +278,7 @@ def main(argv=None):
             checks.append({"check": "canary_leak", "status": "unverified",
                            "reason": "Canary file and log were not both supplied"})
         report = {"schema_version": 1, "request_sha256": digest(uri),
-                  "network_scope": "local regtest" if any(p["address"].startswith("uregtest1") for p in payments) else "unverified",
+                  "network_scope": f"{args.network} (operator asserted)" if args.network else "unverified",
                   "checks": checks,
                   "limits": ["Wallet observation proves only this wallet's view of a confirmed note.",
                              "Canary scan covers only supplied files and literal markers.",

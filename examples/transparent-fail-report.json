@@ -1,48 +1,41 @@
 {
   "schema_version": 1,
-  "request_sha256": "f0e6d6877ebb55a1f88e41c4d3d80ea5b4d0c127bd2c5f25511db55371468fb9",
+  "request_sha256": "619e1e8476fc549ef950e812a305e7f7ea721eff6729c5fe084c95b17958328c",
   "network_scope": "regtest (operator asserted)",
   "checks": [
     {
       "check": "recipient_preflight",
       "payment_index": "",
-      "status": "pass",
-      "reason": "Wallet validated a shielded receiver",
+      "status": "fail",
+      "reason": "Transparent-only recipient reveals output address and amount",
       "evidence": {
-        "address_sha256": "3c948353a5d03e08e08086ca88ce6e5bf222ff919e882bb21fd2c85830b64f56",
+        "address_sha256": "9d7552b96a1519a713c69941c1c261805d2c0879de5c8e0583de9b29abc8778a",
         "network_hint": "regtest-or-testnet",
         "memo_present": false,
         "label_present": false,
         "message_present": false,
-        "rpc_validated": true,
-        "receiver_types": [
-          "orchard",
-          "p2pkh",
-          "sapling"
-        ]
+        "rpc_validated": true
       }
     },
     {
       "check": "recipient_observation",
-      "status": "pass",
+      "status": "fail",
       "evidence": {
-        "txid": "286f97d8e1daaf629d7d766b033f0989c15d987892fc94b71a4d8ab4e9345b93",
+        "txid": "0902ffc60adb37c9cb0aa4620a6e959ad34c0296047bb8a5c2bf192e2330f57b",
         "wallet_synced": true,
         "wallet_height": 129,
         "node_height": 129,
         "chain_status": "mined",
-        "confirmations": 12,
+        "confirmations": 1,
         "account_sha256": "501f91848ea46df61485db1e4779e75b082b69afd11932b4a0729b3a564dc358",
         "received_output_count": 1,
         "observed_pools": [
-          "ironwood"
+          "transparent"
         ],
-        "matching_shielded_output_count": 1,
-        "matching_pools": [
-          "ironwood"
-        ]
+        "matching_shielded_output_count": 0,
+        "matching_pools": []
       },
-      "reason": "Recipient wallet decrypted a confirmed shielded note of the requested amount"
+      "reason": "Confirmed receive lacks a matching shielded note"
     },
     {
       "check": "canary_leak",

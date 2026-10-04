@@ -6,7 +6,7 @@ A local CLI that checks a ZIP-321 payment request, verifies a received shielded 
 
 On 2026-10-04, Zebra 6.4.2 and Zallet 0.1.0-beta.3 ran on an isolated regtest chain with NU6.3 active. A sender shielded coinbase funds, sent **0.01 regtest ZEC** to a separate receiver wallet, and the receiver decrypted a confirmed **Ironwood** note. The txid is `286f97d8e1daaf629d7d766b033f0989c15d987892fc94b71a4d8ab4e9345b93`. The local chain cannot be queried outside this machine; [evidence notes](EVIDENCE.md) record the RPC observations.
 
-The kit produced [a report with a planted leak](examples/sample-report.json) (`pass`, `pass`, `fail`) and [a clean control](examples/clean-report.json) (`pass`, `pass`, `pass`). Both checked the same real regtest payment. A second real transaction to a transparent receiver produced [a transparent failure report](examples/transparent-fail-report.json) (`fail`, `fail`, `pass`); Zebra exposed the 0.005 ZEC output amount and receiver address in `getrawtransaction`. Public Testnet validation is still pending.
+The kit produced [a report with a planted leak](examples/sample-report.json) (`pass`, `pass`, `fail`) and [a clean control](examples/clean-report.json) (`pass`, `pass`, `pass`). Both checked the same real regtest payment. A second real transaction to a transparent receiver produced [a transparent failure report](examples/transparent-fail-report.json) (`fail`, `fail`, `pass`); Zebra exposed the 0.005 ZEC output amount and receiver address in `getrawtransaction`. [Public Testnet validation](PUBLIC_TESTNET_GATE.md) was attempted and remains unverified because the available wallet could not scan the active NU7 chain.
 
 ## Run
 

@@ -7,7 +7,7 @@ Provisional cap: **80 focused hours**, subject to actual availability; do not as
 | ID | Deliverable and requirements | Dependencies | Budget | Acceptance checkpoint | Target |
 |---|---|---|---|---|---|
 | M-01a | Local feasibility: R-03a and R-04 | Zebra/Zallet regtest | 10–14 h | Real Ironwood send and recipient observation; planted leak and clean control. **Passed 2026-10-04.** | Oct 4 |
-| M-01b | Public Testnet feasibility: R-03b | Current wallet/node, sync, test funds | 6–10 h | Public Testnet txid and separate receiver observation, upgrade/version recorded. | Oct 7 |
+| M-01b | Public Testnet feasibility: R-03b | NU7-compatible wallet, sync, confirmed test funds | 6–10 h | Public sender-to-receiver txid and separate receiver observation, upgrade/version recorded. [Attempted Oct 4; blocked at wallet sync](PUBLIC_TESTNET_GATE.md). | Oct 7 |
 | M-02 | Request preflight: R-01, R-02 | ZIPs 321/316; wallet validation | 12–16 h | Standard vectors and valid/invalid/unknown outcomes work. First CLI slice exists; broader vectors pending. | Oct 13 |
 | M-03 | Full run and report: R-03–R-05 | M-01/M-02 | 20–26 h | One command runs scenario and emits useful redacted report; planted canary is caught. | Oct 20 |
 | M-04 | QA, clean setup, security check: R-01–R-06, C-02/C-03 | M-03 | 12–16 h | Clean checkout, failure paths, key/secret scan, exact claim review. | Oct 24 |
@@ -16,9 +16,9 @@ Provisional cap: **80 focused hours**, subject to actual availability; do not as
 
 ## Feasibility checkpoint
 
-M-01a used the verified [Zallet release](https://github.com/zcash/zallet/releases/tag/v0.1.0-beta.3) with [Zebra](https://github.com/ZcashFoundation/zebra/releases/tag/v6.4.2) on local regtest. [Evidence](EVIDENCE.md) records the Ironwood payment, recipient observation, and planted leak. The CLI now reports those observations without sending keys to the kit. M-01b repeats the critical path on public Testnet; local regtest cannot substitute for it.
+M-01a used the verified [Zallet release](https://github.com/zcash/zallet/releases/tag/v0.1.0-beta.3) with [Zebra](https://github.com/ZcashFoundation/zebra/releases/tag/v6.4.2) on local regtest. [Evidence](EVIDENCE.md) records the Ironwood payment, recipient observation, and planted leak. The CLI now reports those observations without sending keys to the kit. M-01b repeats the critical path on public Testnet; its [first attempt](PUBLIC_TESTNET_GATE.md) confirmed faucet funding but exposed an NU7 wallet compatibility blocker.
 
-If public Testnet funding or sync fails by Oct 7, evaluate one documented alternate wallet/remote chain path, then reassess the evidence claim. A failure to detect the seeded leak blocks continuing on the same claim.
+If a compatible public Testnet wallet is still unavailable by Oct 7, evaluate one documented alternate wallet/remote chain path, then reassess the evidence claim. A failure to detect the seeded leak blocks continuing on the same claim.
 
 ## Scope and finish conditions
 

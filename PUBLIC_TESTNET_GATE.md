@@ -1,0 +1,25 @@
+# M-01b public Testnet validation gate
+
+Attempted **2026-10-04, 19:14–19:34 UTC**. Result: **unverified / blocked by wallet compatibility**. This is not a public payment pass.
+
+## Network and funding observations
+
+- The public lightwalletd endpoint `https://testnet.zec.rocks:443` returned a tip at heights **4,465,191–4,465,195** during the run. [ZIP 259](https://zips.z.cash/zip-0259) sets NU7 Testnet activation at height **4,465,026** and its consensus branch ID to **`0x77190AD9`**. The observed tip was therefore already past activation, earlier than the Foundation's approximate October 6 calendar estimate.
+- Two independent Testnet wallets were created in an isolated local work directory using the native module from [Zingo PC 2.0.25-180](https://github.com/zingolabs/zingo-pc/releases/tag/zingo-pc-2.0.25-180). Their seed phrases and wallet files are not included in this repository.
+- [Fauzec](https://fauzec.com/) accepted a shielded 1 TAZ claim for the sender's Unified Address. Request `01M446323S1E1NXP79GVK2TR7C` subsequently returned `state: confirmed`, `outcome: accepted`, txid **`689642767d2b428d15da7a3b7ad87d8f73fb6b67d218443ed2225b1853502494`**. This is faucet status, not independent recipient-wallet observation. The full receiving address is omitted from this report.
+
+## Blocking observation
+
+The Zingo wallet loaded and reached the public server, but its sync failed with:
+
+```text
+sync: server error. server returned invalid transaction. invalid consensus branch id 0x77190ad9
+```
+
+The wallet's lockfile uses `zcash_protocol` 0.10.0 and a 0.10.1 development revision. The newer Zingo PC 2.0.26-193 prerelease was inspected from its release source: its lockfile uses `zcash_protocol` 0.10.5, whose [published changelog](https://docs.rs/crate/zcash_protocol/0.10.5/source/CHANGELOG.md) has no NU7 entry. This suggests the prerelease also lacks the active branch ID; it was **not** executed, so this remains an inference. The decisive observation is the actual sync error above. [Zebra's NU7 release note](https://zfnd.org/zebra-7-0-0-rc-0-nu7-arrives-on-testnet/) also calls out a database format change requiring matching Zallet/Zaino builds, so the older local Zebra/Zallet pair is not a valid public Testnet substitute.
+
+## Pass condition and rerun
+
+R-03b stays open. The confirmed faucet transaction only funds the sender. A pass requires an NU7-compatible wallet to scan that note, submit a small shielded payment from this sender to the separately created receiver, then show the receiver's confirmed incoming note and matching txid. Record wallet version, live tip, branch ID, amount, confirmation, and a redacted report. Treat a broadcast without receiver observation as `unverified`; look up an uncertain tx before retrying.
+
+The local wallet files and claim response remain in `work/zingo-pc/` outside the deliverable. Do not add seeds, wallet files, or full addresses to Git. No second faucet claim is needed while this funded sender is recoverable.

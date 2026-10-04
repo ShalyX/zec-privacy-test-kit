@@ -1,4 +1,5 @@
 import importlib.util
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -51,6 +52,17 @@ class LeakControl(unittest.TestCase):
         self.assertEqual(leaked["evidence"]["findings"][0]["line"], 2)
         self.assertEqual(clean["status"], "pass")
         self.assertNotIn("ORDER-DEMO-7F3C9A", str(leaked))
+
+
+class CiOutcome(unittest.TestCase):
+    def test_fail_unverified_and_input_error_exit_codes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            report = str(Path(directory) / "report.json")
+            self.assertEqual(kit.main(["--uri", "zcash:tmEZhbWHTpdKMw5it8YDspUXSMGQyFwovpU?amount=1",
+                                       "--report", report]), 1)
+            self.assertEqual(kit.main(["--uri", f"zcash:{Zip321Examples.SAPLING}?amount=1",
+                                       "--report", report]), 3)
+            self.assertEqual(kit.main(["--uri", "zcash://invalid", "--report", report]), 2)
 
 
 if __name__ == "__main__":

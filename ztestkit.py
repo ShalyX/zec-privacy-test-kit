@@ -286,6 +286,10 @@ def main(argv=None):
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         print(json.dumps({"report": str(args.report), "statuses": [c["status"] for c in checks]}))
+        if any(check["status"] == "fail" for check in checks):
+            return 1
+        if any(check["status"] == "unverified" for check in checks):
+            return 3
         return 0
     except (CheckError, OSError) as exc:
         print(f"ztestkit: {exc}", file=sys.stderr)

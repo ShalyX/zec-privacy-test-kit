@@ -37,6 +37,8 @@ python3 -m unittest discover -s tests -v
 - `fail`: a concrete privacy problem or mismatched receive was detected.
 - `unverified`: missing or incomplete evidence. It never counts as a privacy pass.
 
+Exit codes: `0` all checks pass, `1` at least one check fails, `3` no failures but at least one check is unverified, `2` invalid input or an operational error. Reports are still written for `1` and `3` so CI can preserve evidence.
+
 The exported report hashes request, address, account, and canary identifiers. It omits the request amount, memo, raw canary, raw log filename, keys, and viewing material. A testnet/regtest txid and confirmation count are included as evidence. `--network` is recorded as an operator assertion. Input files and Zallet RPC traffic remain local; the tool cannot detect leaks in surfaces it was not given.
 
 This early parser covers ZEC ZIP-321 requests; required `req-` extensions, including custom assets, fail closed. Wallet RPC validation supplies address validity. The current CLI observes an already submitted transaction; transaction orchestration and public testnet proof are subsequent milestones.

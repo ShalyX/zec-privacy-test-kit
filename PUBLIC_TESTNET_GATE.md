@@ -23,3 +23,7 @@ The wallet's lockfile uses `zcash_protocol` 0.10.0 and a 0.10.1 development revi
 R-03b stays open. The confirmed faucet transaction only funds the sender. A pass requires an NU7-compatible wallet to scan that note, submit a small shielded payment from this sender to the separately created receiver, then show the receiver's confirmed incoming note and matching txid. Record wallet version, live tip, branch ID, amount, confirmation, and a redacted report. Treat a broadcast without receiver observation as `unverified`; look up an uncertain tx before retrying.
 
 The local wallet files and claim response remain in `work/zingo-pc/` outside the deliverable. Do not add seeds, wallet files, or full addresses to Git. No second faucet claim is needed while this funded sender is recoverable.
+
+## Rerun — 2026-10-04, 21:17 UTC
+
+The faucet still reported the funding txid above as `confirmed`. The public lightwalletd tip had advanced to **4,465,420**. The same sender wallet loaded successfully, but a fresh sync returned the same `invalid consensus branch id 0x77190ad9` error. As of this rerun, the latest published Zingo PC stable release was 2.0.25-180 and the latest Zallet release was 0.1.0-beta.3; no compatible replacement was identified. No new payment was submitted. **R-03b remains unverified.**

@@ -1,6 +1,6 @@
 # Current status
 
-Updated: **2026-10-04, Africa/Lagos**. Lifecycle: **M-01a local feasibility passed / first CLI slice built**. Public Testnet gate M-01b: **attempted and rerun, unverified due to NU7 wallet incompatibility**. Submission: **pending**.
+Updated: **2026-10-05, Africa/Lagos**. Lifecycle: **M-01a local feasibility passed / first CLI slice built**. Public Testnet gate M-01b: **attempted and rerun, unverified due to NU7 wallet incompatibility**. Submission: **pending**.
 
 ## Canonical documents
 
@@ -31,6 +31,7 @@ Updated: **2026-10-04, Africa/Lagos**. Lifecycle: **M-01a local feasibility pass
 | Public Testnet funding confirmed by faucet | Fauzec reported confirmed 1 TAZ shielded funding txid `689642767d2b428d15da7a3b7ad87d8f73fb6b67d218443ed2225b1853502494`; [gate record](PUBLIC_TESTNET_GATE.md). | Oct 4 |
 | Public Testnet wallet sync blocked | Server tip exceeded NU7 activation height; Zingo PC 2.0.25-180 rejected consensus branch ID `0x77190ad9`. No sender-to-receiver payment or recipient observation is claimed. | Oct 4 |
 | Public Testnet rerun unchanged | At tip 4,465,420, the same funded sender loaded, then sync rejected branch ID `0x77190ad9`; [rerun record](PUBLIC_TESTNET_GATE.md). | Oct 4 |
+| New prerelease assessed; public gate still blocked | Zingo PC 2.0.26-194 pins `zcash_protocol` 0.10.6, whose tagged NU7 support is inactive and still uses a placeholder branch ID. The old sender wallet again failed sync at tip 4,466,265; [gate record](PUBLIC_TESTNET_GATE.md). | Oct 5 |
 
 ## Uncertainty and next action
 

@@ -27,3 +27,9 @@ The local wallet files and claim response remain in `work/zingo-pc/` outside the
 ## Rerun — 2026-10-04, 21:17 UTC
 
 The faucet still reported the funding txid above as `confirmed`. The public lightwalletd tip had advanced to **4,465,420**. The same sender wallet loaded successfully, but a fresh sync returned the same `invalid consensus branch id 0x77190ad9` error. As of this rerun, the latest published Zingo PC stable release was 2.0.25-180 and the latest Zallet release was 0.1.0-beta.3; no compatible replacement was identified. No new payment was submitted. **R-03b remains unverified.**
+
+## Rerun — 2026-10-05, 01:43 UTC
+
+The faucet still reported the funding txid as `confirmed`. The Testnet server tip advanced from **4,466,000** to **4,466,265** during this check. The funded sender wallet loaded, but sync again rejected consensus branch ID `0x77190ad9`.
+
+A newer [Zingo PC 2.0.26-194 prerelease](https://github.com/zingolabs/zingo-pc/releases/tag/zingo-pc-2.0.26-194) had appeared since the prior run. Its tagged `native/Cargo.lock` pins `zcash_protocol` **0.10.6**. In that published crate's `consensus.rs`, NU7 is behind the `zcash_unstable = "nu7"` compile setting, the public Testnet activation height is `None`, and the NU7 branch ID is still the placeholder `0xffffffff`. The tagged Zingo source does not enable that compile setting. This is a source-based compatibility assessment; the new binary was not run. The latest Zallet release remained 0.1.0-beta.3. No sender-to-receiver payment was submitted. **R-03b remains unverified.**

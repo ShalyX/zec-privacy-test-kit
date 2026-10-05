@@ -34,6 +34,7 @@ Updated: **2026-10-05, Africa/Lagos**. Lifecycle: **M-01a local feasibility pass
 | New releases and alternates assessed; public gate still blocked | Zingo PC 2.0.26-194 lacks the active NU7 branch. Tagged Zkool and Vizor Windows releases also lack matching public Testnet support. The old sender wallet again failed sync at tip 4,466,265; [gate record](PUBLIC_TESTNET_GATE.md). | Oct 5 |
 | CLI report v2 and clean checkout example | Wallet RPC outages produce `unverified` checks and a redacted report. Every check includes source, rerun steps, and boundary. A request-only sample catches the planted log leak while marking wallet checks unverified. | Oct 5 |
 | Fresh public Testnet gate still blocked | Sender loaded at live server tip 4,468,118; sync rejected NU7 branch ID `0x77190ad9`. No payment was submitted. Published Zingo/Zallet releases were unchanged; [gate record](PUBLIC_TESTNET_GATE.md). | Oct 5 |
+| Newest Zingo prerelease tested safely | Zingo PC 2.0.26-194 was checksum-verified and run against copied wallet files. It failed sync on the same NU7 branch at tips 4,468,170–4,468,179; original wallets stayed untouched and no send was attempted. | Oct 5 |
 
 ## Uncertainty and next action
 

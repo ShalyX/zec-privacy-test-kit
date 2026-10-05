@@ -1,7 +1,9 @@
 import importlib.util
+import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,6 +39,10 @@ class Zip321Examples(unittest.TestCase):
             f"zcash://{self.TRANSPARENT}?amount=1",
             f"zcash:{self.TRANSPARENT}?req-unknown=1",
             f"zcash:{self.TRANSPARENT}?memo=VGhpcyBpcyBh",
+            f"zcash:{self.SAPLING}?memo=A",
+            f"zcash:{self.SAPLING}?memo=AA_",
+            f"zcash:{self.SAPLING}?amount=0.000000001",
+            f"zcash:{self.SAPLING}?amount=21000001",
         ]
         for uri in invalid:
             with self.subTest(uri=uri), self.assertRaises(kit.CheckError):
@@ -63,6 +69,61 @@ class CiOutcome(unittest.TestCase):
             self.assertEqual(kit.main(["--uri", f"zcash:{Zip321Examples.SAPLING}?amount=1",
                                        "--report", report]), 3)
             self.assertEqual(kit.main(["--uri", "zcash://invalid", "--report", report]), 2)
+
+    def test_wallet_outage_still_writes_redacted_unverified_report(self):
+        class UnavailableWallet:
+            def call(self, method, params=None):
+                raise kit.CheckError("secret wallet detail")
+
+        payment = kit.parse_uri(f"zcash:{Zip321Examples.SAPLING}?amount=0.01")[0]
+        checks = kit.preflight([payment], UnavailableWallet())
+        checks.append(kit.observe(UnavailableWallet(), "a" * 64, payment["amount_zat"], "private-account"))
+        kit.annotate_checks(checks)
+        self.assertEqual([check["status"] for check in checks], ["unverified", "unverified"])
+        self.assertTrue(all(check["evidence_source"] and check["reproduce"] and
+                            check["privacy_boundary"] for check in checks))
+        self.assertNotIn("secret wallet detail", json.dumps(checks))
+        self.assertNotIn("private-account", json.dumps(checks))
+
+        with tempfile.TemporaryDirectory() as directory, patch.object(kit, "WalletRpc", return_value=UnavailableWallet()):
+            report = Path(directory) / "report.json"
+            exit_code = kit.main(["--uri", f"zcash:{Zip321Examples.SAPLING}?amount=0.01",
+                                  "--rpc-url", "http://127.0.0.1:50233",
+                                  "--rpc-cookie", str(Path(directory) / "unused-cookie"),
+                                  "--account-uuid", "private-account", "--txid", "a" * 64,
+                                  "--report", str(report)])
+            self.assertEqual(exit_code, 3)
+            exported = report.read_text()
+            self.assertEqual([c["status"] for c in json.loads(exported)["checks"]],
+                             ["unverified", "unverified", "unverified"])
+            self.assertNotIn("secret wallet detail", exported)
+            self.assertNotIn("private-account", exported)
+
+    def test_request_only_report_carries_check_context(self):
+        with tempfile.TemporaryDirectory() as directory:
+            report = Path(directory) / "report.json"
+            exit_code = kit.main(["--uri", f"zcash:{Zip321Examples.SAPLING}?amount=0.01",
+                                  "--canary-file", str(ROOT / "examples" / "canaries.txt"),
+                                  "--log", str(ROOT / "examples" / "clean-app.log"),
+                                  "--report", str(report)])
+            data = json.loads(report.read_text())
+            self.assertEqual(exit_code, 3)
+            self.assertEqual(data["schema_version"], 2)
+            self.assertEqual([c["status"] for c in data["checks"]],
+                             ["unverified", "unverified", "pass"])
+            self.assertTrue(all("evidence_source" in c and "reproduce" in c and
+                                "privacy_boundary" in c for c in data["checks"]))
+
+    def test_incomplete_wallet_tip_cannot_pass_observation(self):
+        class IncompleteWallet:
+            def call(self, method, params=None):
+                if method == "getwalletstatus":
+                    return {"node_tip": {}, "wallet_tip": {}}
+                raise AssertionError("Transaction view must not run before sync is established")
+
+        check = kit.observe(IncompleteWallet(), "a" * 64, 1_000_000, "account")
+        self.assertEqual(check["status"], "unverified")
+        self.assertFalse(check["evidence"]["wallet_synced"])
 
 
 if __name__ == "__main__":

@@ -91,6 +91,8 @@ def parse_uri(uri):
                 memo = base64.urlsafe_b64decode(record["memo"] + "=" * (-len(record["memo"]) % 4))
             except (ValueError, base64.binascii.Error) as exc:
                 raise CheckError("Invalid memo encoding") from exc
+            if base64.urlsafe_b64encode(memo).rstrip(b"=").decode() != record["memo"]:
+                raise CheckError("Invalid memo encoding")
             if len(memo) > 512:
                 raise CheckError("Memo exceeds 512 bytes")
         parsed.append({"index": index, "address": addr, "amount_zat": amount_zat,
@@ -131,7 +133,8 @@ class WalletRpc:
         except (urllib.error.URLError, TimeoutError) as exc:
             raise CheckError(f"Wallet RPC unavailable: {type(exc).__name__}") from exc
         if payload.get("error"):
-            raise CheckError(f"Wallet RPC {method} failed: {payload['error'].get('message', 'unknown error')}")
+            # Wallet error messages can contain request data; never copy them to a report.
+            raise CheckError(f"Wallet RPC {method} failed")
         return payload.get("result")
 
 
@@ -144,6 +147,7 @@ def preflight(payments, wallet=None):
                     "label_present": payment["label_present"],
                     "message_present": payment["message_present"]}
         receivers = None
+        wallet_error = False
         if wallet:
             try:
                 receivers = wallet.call("z_listunifiedreceivers", [addr])
@@ -152,18 +156,25 @@ def preflight(payments, wallet=None):
             if receivers is not None:
                 evidence["rpc_validated"] = True
             else:
-                validation = wallet.call("validateaddress", [addr])
-                if not validation.get("isvalid"):
-                    checks.append({"check": "address_valid", "status": "fail", "evidence": evidence})
-                    continue
-                evidence["rpc_validated"] = True
+                try:
+                    validation = wallet.call("validateaddress", [addr])
+                except CheckError:
+                    wallet_error = True
+                else:
+                    if not validation.get("isvalid"):
+                        checks.append({"check": "address_valid", "payment_index": payment["index"],
+                                       "status": "fail", "reason": "Wallet rejected the address",
+                                       "evidence": evidence})
+                        continue
+                    evidence["rpc_validated"] = True
         transparent = addr.startswith(("t1", "t2", "tm"))
         if receivers is not None:
             evidence["receiver_types"] = sorted(receivers)
             transparent = set(receivers) <= {"p2pkh", "p2sh"}
             shielded = bool(set(receivers) & {"sapling", "orchard", "ironwood"})
         else:
-            shielded = False
+            shielded = bool(evidence.get("rpc_validated") and
+                            addr.startswith(("zs1", "ztestsapling1", "zregtestsapling1")))
         if transparent and payment["memo_present"]:
             status, reason = "fail", "Memo requested for transparent recipient"
         elif transparent:
@@ -171,7 +182,8 @@ def preflight(payments, wallet=None):
         elif wallet and shielded:
             status, reason = "pass", "Wallet validated a shielded receiver"
         else:
-            status, reason = "unverified", "Receiver capability requires wallet validation"
+            status, reason = "unverified", ("Wallet RPC unavailable for receiver validation" if wallet_error
+                                            else "Receiver capability requires wallet validation")
         checks.append({"check": "recipient_preflight", "payment_index": payment["index"],
                        "status": status, "reason": reason, "evidence": evidence})
         if payment["label_present"] or payment["message_present"]:
@@ -183,17 +195,28 @@ def preflight(payments, wallet=None):
 def observe(wallet, txid, expected_zat, account_uuid):
     if not re.fullmatch(r"[0-9a-fA-F]{64}", txid):
         raise CheckError("txid must be 64 hex characters")
-    status = wallet.call("getwalletstatus")
+    try:
+        status = wallet.call("getwalletstatus")
+    except CheckError:
+        return {"check": "recipient_observation", "status": "unverified",
+                "reason": "Wallet RPC unavailable for transaction observation",
+                "evidence": {"txid": txid}}
     node = status.get("node_tip", {})
     tip = status.get("wallet_tip", {})
-    synced = node.get("height") == tip.get("height") and node.get("blockhash") == tip.get("blockhash")
+    synced = (node.get("height") is not None and node.get("blockhash") is not None
+              and node.get("height") == tip.get("height")
+              and node.get("blockhash") == tip.get("blockhash"))
     result = {"check": "recipient_observation", "status": "unverified",
               "evidence": {"txid": txid, "wallet_synced": synced,
                            "wallet_height": tip.get("height"), "node_height": node.get("height")}}
     if not synced or status.get("locked"):
         result["reason"] = "Wallet is still syncing or locked"
         return result
-    view = wallet.call("z_viewtransaction", [txid])
+    try:
+        view = wallet.call("z_viewtransaction", [txid])
+    except CheckError:
+        result["reason"] = "Wallet RPC unavailable for transaction observation"
+        return result
     outputs = [entry for entry in view.get("outputs", [])
                if entry.get("account_uuid") == account_uuid and entry.get("outgoing") is False]
     matches = [entry for entry in outputs if entry.get("valueZat") == expected_zat]
@@ -230,6 +253,42 @@ def scan_canaries(log_paths, canary_path):
     return {"check": "canary_leak", "status": "fail" if findings else "pass",
             "reason": "Synthetic marker found in supplied log" if findings else "No supplied canary found",
             "evidence": {"files_scanned": len(log_paths), "findings": findings}}
+
+
+CHECK_CONTEXT = {
+    "address_valid": ("ZIP-321 request and recipient wallet address validation",
+                      "Rerun this request against the same wallet and inspect address validation.",
+                      "Only this wallet's address validation was checked."),
+    "recipient_preflight": ("ZIP-321 request and recipient wallet receiver decoding",
+                            "Rerun with the request and recipient wallet RPC; inspect receiver types.",
+                            "Receiver capability does not prove a payment used a shielded receiver."),
+    "uri_metadata": ("ZIP-321 request fields",
+                     "Inspect the request for label and message parameters.",
+                     "This detects metadata in the supplied URI only."),
+    "recipient_observation": ("Recipient wallet getwalletstatus and z_viewtransaction",
+                              "Rerun with the same txid, recipient wallet, and account UUID after sync.",
+                              "A wallet view cannot establish network-wide privacy or external leaks."),
+    "canary_leak": ("Supplied local logs and synthetic canary file",
+                    "Rerun with the same canary file and logs; inspect reported file index and line.",
+                    "Literal matching covers only supplied files and canaries."),
+}
+
+
+def annotate_checks(checks):
+    for check in checks:
+        source, reproduce, boundary = CHECK_CONTEXT[check["check"]]
+        if check["check"] == "recipient_observation" and check.get("reason") == "No transaction ID supplied":
+            source = "No transaction or recipient wallet observation supplied"
+            reproduce = "Supply a txid, recipient wallet RPC, and account UUID after payment confirmation."
+        elif check["check"] == "recipient_preflight" and check.get("status") == "unverified":
+            source = "ZIP-321 request syntax; wallet receiver validation unavailable"
+        elif check["check"] == "canary_leak" and check.get("status") == "unverified":
+            source = "No complete canary and log input supplied"
+            reproduce = "Supply a synthetic canary file and at least one app log."
+        check["evidence_source"] = source
+        check["reproduce"] = reproduce
+        check["privacy_boundary"] = boundary
+    return checks
 
 
 def main(argv=None):
@@ -277,7 +336,8 @@ def main(argv=None):
         else:
             checks.append({"check": "canary_leak", "status": "unverified",
                            "reason": "Canary file and log were not both supplied"})
-        report = {"schema_version": 1, "request_sha256": digest(uri),
+        annotate_checks(checks)
+        report = {"schema_version": 2, "request_sha256": digest(uri),
                   "network_scope": f"{args.network} (operator asserted)" if args.network else "unverified",
                   "checks": checks,
                   "limits": ["Wallet observation proves only this wallet's view of a confirmed note.",

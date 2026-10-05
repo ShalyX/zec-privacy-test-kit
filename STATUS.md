@@ -1,6 +1,6 @@
 # Current status
 
-Updated: **2026-10-05, Africa/Lagos**. Lifecycle: **M-01a local feasibility passed / first CLI slice built**. Public Testnet gate M-01b: **attempted and rerun, unverified due to NU7 wallet incompatibility**. Submission: **pending**.
+Updated: **2026-10-05, Africa/Lagos**. Lifecycle: **M-01a local feasibility passed / CLI report v2 built**. Public Testnet gate M-01b: **attempted and rerun, unverified due to NU7 wallet incompatibility**. Submission: **pending**.
 
 ## Canonical documents
 
@@ -32,11 +32,12 @@ Updated: **2026-10-05, Africa/Lagos**. Lifecycle: **M-01a local feasibility pass
 | Public Testnet wallet sync blocked | Server tip exceeded NU7 activation height; Zingo PC 2.0.25-180 rejected consensus branch ID `0x77190ad9`. No sender-to-receiver payment or recipient observation is claimed. | Oct 4 |
 | Public Testnet rerun unchanged | At tip 4,465,420, the same funded sender loaded, then sync rejected branch ID `0x77190ad9`; [rerun record](PUBLIC_TESTNET_GATE.md). | Oct 4 |
 | New releases and alternates assessed; public gate still blocked | Zingo PC 2.0.26-194 lacks the active NU7 branch. Tagged Zkool and Vizor Windows releases also lack matching public Testnet support. The old sender wallet again failed sync at tip 4,466,265; [gate record](PUBLIC_TESTNET_GATE.md). | Oct 5 |
+| CLI report v2 and clean checkout example | Wallet RPC outages produce `unverified` checks and a redacted report. Every check includes source, rerun steps, and boundary. A request-only sample catches the planted log leak while marking wallet checks unverified. | Oct 5 |
 
 ## Uncertainty and next action
 
 M-01b is unverified. Public Testnet funds are confirmed by the faucet, but the available light wallet cannot scan the NU7 chain. The local regtest proof remains isolated; the required public sender-to-receiver transaction and recipient scan have not happened. The cloned `zcash-devtool` requires Rust 1.88; Rust is absent and the official toolchain host did not resolve from this machine. Also inspect registered-only submission fields before final packaging.
 
-**Next action:** use an NU7-compatible wallet build to recover the funded sender and independently created receiver, complete [M-01b](PUBLIC_TESTNET_GATE.md), then expand ZIP-321 and wallet validation cases and make one command orchestrate the scenario safely. There is no deployment or public repository yet. Local Git history records the code and evidence slices.
+**Next action:** expand ZIP-321 and wallet validation cases, then safely orchestrate a live payment scenario. Use an NU7-compatible wallet build when one is available to recover the funded sender and independently created receiver and complete [M-01b](PUBLIC_TESTNET_GATE.md). There is no deployment or public repository yet. Local Git history records the code and evidence slices.
 
 Provisional remaining budget: up to 80 focused hours plus calendar buffer through Oct 28. Actual capacity is unknown. Backlog: hosted report viewer, multi-wallet adapters, additional privacy checks. No pending concept choice.

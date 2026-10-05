@@ -12,6 +12,16 @@ The kit produced [a report with a planted leak](examples/sample-report.json) (`p
 
 Python 3.10+ and a running Zallet JSON-RPC endpoint are required for live observation. Keep Zallet bound to loopback. Put the receiver wallet's `user:password` in a private file outside the project; Zallet's RPC cookie file may also be used while it exists. Do not pass credentials, seed phrases, or private memos on the command line.
 
+From a clean checkout, run the request and log checks without a wallet:
+
+```sh
+python3 ztestkit.py --uri-file examples/sample-request.txt \
+  --canary-file examples/canaries.txt --log examples/leaky-app.log \
+  --network testnet --report request-only-report.json
+```
+
+This writes a report with a detected synthetic leak. The sample address is a ZIP-321 test vector, so receiver capability and payment receipt remain `unverified`. The command neither sends a payment nor proves public Testnet operation. An [example output](examples/request-only-report.json) is included.
+
 ```sh
 python3 ztestkit.py \
   --uri-file /private/payment-request.txt \
@@ -37,9 +47,9 @@ python3 -m unittest discover -s tests -v
 - `fail`: a concrete privacy problem or mismatched receive was detected.
 - `unverified`: missing or incomplete evidence. It never counts as a privacy pass.
 
-Exit codes: `0` all checks pass, `1` at least one check fails, `3` no failures but at least one check is unverified, `2` invalid input or an operational error. Reports are still written for `1` and `3` so CI can preserve evidence.
+Exit codes: `0` all checks pass, `1` at least one check fails, `3` no failures but at least one check is unverified, `2` invalid input or an operational error. Reports are still written for `1` and `3` so CI can preserve evidence. Wallet RPC observation errors are reported as `unverified`; invalid local inputs remain exit `2`.
 
-The exported report hashes request, address, account, and canary identifiers. It omits the request amount, memo, raw canary, raw log filename, keys, and viewing material. A testnet/regtest txid and confirmation count are included as evidence. `--network` is recorded as an operator assertion. Input files and Zallet RPC traffic remain local; the tool cannot detect leaks in surfaces it was not given.
+The exported report hashes request, address, account, and canary identifiers. It omits the request amount, memo, raw canary, raw log filename, keys, and viewing material. A testnet/regtest txid and confirmation count are included as evidence. Each check states its evidence source, rerun steps, and privacy boundary. `--network` is recorded as an operator assertion. Input files and Zallet RPC traffic remain local; the tool cannot detect leaks in surfaces it was not given. Existing regtest reports in `examples/` use schema version 1; new runs use version 2.
 
 This early parser covers ZEC ZIP-321 requests; required `req-` extensions, including custom assets, fail closed. Wallet RPC validation supplies address validity. The current CLI observes an already submitted transaction; transaction orchestration and public testnet proof are subsequent milestones.
 

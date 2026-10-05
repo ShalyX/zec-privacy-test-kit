@@ -1,0 +1,54 @@
+{
+  "schema_version": 2,
+  "request_sha256": "db9f3488f667270c5670f90ab407a3a9c1c52e36010537404c3c3f1ef34309da",
+  "network_scope": "testnet (operator asserted)",
+  "checks": [
+    {
+      "check": "recipient_preflight",
+      "payment_index": "",
+      "status": "unverified",
+      "reason": "Receiver capability requires wallet validation",
+      "evidence": {
+        "address_sha256": "84870afbd9b95f3431946330e041c7ce78b91c0422d55bcb2583260df3aaefda",
+        "network_hint": "testnet",
+        "memo_present": false,
+        "label_present": false,
+        "message_present": false
+      },
+      "evidence_source": "ZIP-321 request syntax; wallet receiver validation unavailable",
+      "reproduce": "Rerun with the request and recipient wallet RPC; inspect receiver types.",
+      "privacy_boundary": "Receiver capability does not prove a payment used a shielded receiver."
+    },
+    {
+      "check": "recipient_observation",
+      "status": "unverified",
+      "reason": "No transaction ID supplied",
+      "evidence_source": "No transaction or recipient wallet observation supplied",
+      "reproduce": "Supply a txid, recipient wallet RPC, and account UUID after payment confirmation.",
+      "privacy_boundary": "A wallet view cannot establish network-wide privacy or external leaks."
+    },
+    {
+      "check": "canary_leak",
+      "status": "fail",
+      "reason": "Synthetic marker found in supplied log",
+      "evidence": {
+        "files_scanned": 1,
+        "findings": [
+          {
+            "file_index": 1,
+            "line": 2,
+            "canary_sha256": "e79b918c6a6dc4559b1667c5e84058b3d66f36879b49440fb5e7bbf5d365a845"
+          }
+        ]
+      },
+      "evidence_source": "Supplied local logs and synthetic canary file",
+      "reproduce": "Rerun with the same canary file and logs; inspect reported file index and line.",
+      "privacy_boundary": "Literal matching covers only supplied files and canaries."
+    }
+  ],
+  "limits": [
+    "Wallet observation proves only this wallet's view of a confirmed note.",
+    "Canary scan covers only supplied files and literal markers.",
+    "No network observer, RPC transport, browser telemetry, or external logs were tested."
+  ]
+}

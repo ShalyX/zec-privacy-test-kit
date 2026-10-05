@@ -80,3 +80,7 @@ The exported report hashes request, address, account, and canary identifiers. It
 This parser covers ZEC ZIP-321 requests; required `req-` extensions, including custom assets, fail closed. Wallet RPC validation supplies address validity. The core `ztestkit.py` command remains read-only; `scenario_runner.py` is the explicit regtest-only sender. Public Testnet proof remains blocked by wallet NU7 support.
 
 Standards and runtime: [ZIP 321](https://zips.z.cash/zip-0321), [ZIP 316](https://zips.z.cash/zip-0316), [Zallet](https://github.com/zcash/zallet), [Zebra](https://github.com/ZcashFoundation/zebra).
+
+## License
+
+[MIT](LICENSE) © 2026 ElseMade.

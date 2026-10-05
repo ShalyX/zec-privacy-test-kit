@@ -1,6 +1,6 @@
 # Requirements
 
-Canonical direction: [project brief](PROJECT_BRIEF.md). Official event rules checked 2026-10-04 at [thezecathon.com](https://thezecathon.com/) and its [public content file](https://thezecathon.com/darkpool/data.js). Rewards and registration additionally confirmed by the user.
+Canonical direction: [project brief](PROJECT_BRIEF.md). Official event rules and authenticated submission form checked 2026-10-05 at [thezecathon.com](https://thezecathon.com/). Rewards and registration additionally confirmed by the user.
 
 ## User behavior
 
@@ -20,8 +20,10 @@ Canonical direction: [project brief](PROJECT_BRIEF.md). Official event rules che
 |---|---|---|---|---|
 | C-01 | Entry in one track, one submission per account. | Event Rules / FAQ | Core & Tooling submission. | Inspect final entry. |
 | C-02 | Code written during build window; libraries allowed, existing products not. | Event Rules / FAQ | New repository with clear dependency attribution and dated history. | Git history/license review. |
-| C-03 | Open source at submission. | Event Rules / FAQ | Public repository and license by final package. | Open repository without sign-in. |
+| C-03 | Open source at submission; a private repository made public by the deadline is allowed. | Event Rules / FAQ | Public MIT-licensed repository. | Open repository without sign-in and confirm the form checkbox. |
 | C-04 | Submit by 2026-10-28 23:59 UTC. | Event schedule | Final entry before deadline. | Platform confirmation/receipt. |
+
+The authenticated submission form requires a project name (64 characters maximum), exactly one track, a description (2,000 characters maximum), code repository URL, working demo URL, and a two-minute demo video URL. It warns that a private repository at the deadline will not be judged. Saving a draft after submission removes the submitted state until `SUBMIT` is used again.
 
 ## Judging evidence
 
@@ -34,6 +36,6 @@ Canonical direction: [project brief](PROJECT_BRIEF.md). Official event rules che
 
 ## Unresolved
 
-- Final submission fields, video constraints, and license/IP terms beyond the public Rules/FAQ need a fresh check inside the registered account before packaging.
+- Final field values, public URLs, and submitted receipt remain for M-05/M-06. The field list and two-minute video constraint were verified inside the registered account on 2026-10-05.
 - Current adapter: Zallet 0.1.0-beta.3 plus Zebra 6.4.2 on local regtest. Public Testnet funding is confirmed by the faucet; [NU7-compatible wallet sync](PUBLIC_TESTNET_GATE.md) remains an M-01b dependency.
 - Network-level anonymity and leaks outside supplied surfaces are outside the verified claim.

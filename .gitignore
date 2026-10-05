@@ -5,3 +5,4 @@ __pycache__/
 *credentials*
 *mnemonic*
 *identity.txt
+/request-only-report.json

@@ -1,6 +1,6 @@
 # Current status
 
-Updated: **2026-10-05, Africa/Lagos**. Lifecycle: **M-01a local feasibility passed / CLI report v2 built**. Public Testnet gate M-01b: **attempted and rerun, unverified due to NU7 wallet incompatibility**. Submission: **pending**.
+Updated: **2026-10-05, Africa/Lagos**. Lifecycle: **M-03 local full run passed / M-04 QA next**. Public Testnet gate M-01b: **attempted and rerun, unverified due to NU7 wallet incompatibility**. Submission: **pending**.
 
 ## Canonical documents
 
@@ -35,11 +35,12 @@ Updated: **2026-10-05, Africa/Lagos**. Lifecycle: **M-01a local feasibility pass
 | CLI report v2 and clean checkout example | Wallet RPC outages produce `unverified` checks and a redacted report. Every check includes source, rerun steps, and boundary. A request-only sample catches the planted log leak while marking wallet checks unverified. | Oct 5 |
 | Fresh public Testnet gate still blocked | Sender loaded at live server tip 4,468,118; sync rejected NU7 branch ID `0x77190ad9`. No payment was submitted. Published Zingo/Zallet releases were unchanged; [gate record](PUBLIC_TESTNET_GATE.md). | Oct 5 |
 | Newest Zingo prerelease tested safely | Zingo PC 2.0.26-194 was checksum-verified and run against copied wallet files. It failed sync on the same NU7 branch at tips 4,468,170–4,468,179; original wallets stayed untouched and no send was attempted. | Oct 5 |
+| Guarded M-03 regtest scenario passed | New 0.001 ZEC Ironwood tx `f5ca24f…e23ca` confirmed at height 130. Recipient-side recovery resolved an operation error without retrying; planted leak failed and clean idempotent rerun passed. Sending boundary review fixes passed 18 tests and a live no-send replay. [Evidence](EVIDENCE.md). | Oct 5 |
 
 ## Uncertainty and next action
 
 M-01b is unverified. Public Testnet funds are confirmed by the faucet, but the available light wallet cannot scan the NU7 chain. The local regtest proof remains isolated; the required public sender-to-receiver transaction and recipient scan have not happened. The cloned `zcash-devtool` requires Rust 1.88; Rust is absent and the official toolchain host did not resolve from this machine. Also inspect registered-only submission fields before final packaging.
 
-**Next action:** expand ZIP-321 and wallet validation cases, then safely orchestrate a live payment scenario. Use an NU7-compatible wallet build when one is available to recover the funded sender and independently created receiver and complete [M-01b](PUBLIC_TESTNET_GATE.md). There is no deployment or public repository yet. Local Git history records the code and evidence slices.
+**Next action:** run M-04 from a clean checkout: setup instructions, failure paths, repository secret scan, exact claim review, and QA report. Use an NU7-compatible wallet build when one is available to complete [M-01b](PUBLIC_TESTNET_GATE.md). There is no deployment or public repository yet. Local Git history records the code and evidence slices.
 
 Provisional remaining budget: up to 80 focused hours plus calendar buffer through Oct 28. Actual capacity is unknown. Backlog: hosted report viewer, multi-wallet adapters, additional privacy checks. No pending concept choice.

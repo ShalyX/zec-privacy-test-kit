@@ -1,6 +1,6 @@
 # Current status
 
-Updated: **2026-10-05, Africa/Lagos**. Lifecycle: **M-04 QA passed / M-05 submission assets next**. Public Testnet gate M-01b: **attempted and rerun, unverified due to NU7 wallet incompatibility**. Submission: **pending**.
+Updated: **2026-10-08, Africa/Lagos**. Lifecycle: **M-04 QA passed / M-05 browser demo built, publication and video pending**. Public Testnet gate M-01b: **attempted and rerun, unverified due to NU7 wallet incompatibility in the tested builds**. Submission: **pending**.
 
 ## Canonical documents
 
@@ -39,6 +39,8 @@ Updated: **2026-10-05, Africa/Lagos**. Lifecycle: **M-04 QA passed / M-05 submis
 | M-04 QA gate passed | Fresh clone passed all 18 tests and the documented sample. All 13 revisions passed targeted secret and known-private-value scans; history is inside the build window; MIT license added. Authenticated rules/form confirm Core & Tooling and required submission assets. [QA report](QA_REPORT.md). | Oct 5 |
 
 ## Uncertainty and next action
+
+The browser evidence workbench is built in `demo/`: four recorded cases, schema v1/v2 report upload, evidence and reproduction disclosure, browser-local canary scan and redacted scan export. Desktop and 390 px layouts plus sample cases, report upload and planted/clean scan controls were verified on Oct 8. Public hosting, repository URL, and video remain pending. This browser build did not rerun the public Testnet gate or reassess newer wallet releases.
 
 M-01b is unverified. Public Testnet funds are confirmed by the faucet, but the available light wallet cannot scan the NU7 chain. The local regtest proof remains isolated; the required public sender-to-receiver transaction and recipient scan have not happened. The cloned `zcash-devtool` requires Rust 1.88; Rust is absent and the official toolchain host did not resolve from this machine. Also inspect registered-only submission fields before final packaging.
 

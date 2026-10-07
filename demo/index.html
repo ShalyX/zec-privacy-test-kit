@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ZEC privacy test kit — Evidence workbench</title><link rel="stylesheet" href="style.css"><script type="module" src="app.js"></script></head>
+<body>
+<header><a class="wordmark" href="./"><span class="mark" aria-hidden="true">≋</span> ZEC privacy test kit</a><span class="edition">ELSEMADE / BUILD 01</span></header>
+<main>
+<section class="intro"><div><p class="eyebrow">PAYMENT PRIVACY / EVIDENCE WORKBENCH</p><h1>Make the leak<br>visible.</h1><p class="lead">Inspect a shielded payment, catch a log leak, and see exactly what the evidence proves.</p></div><aside class="scope"><span class="dot"></span><strong>Local regtest verified</strong><p>Separate wallets. Confirmed Ironwood notes. Real CLI reports.</p><hr><strong>Public Testnet: unverified</strong><p>The tested wallets could not scan the active NU7 chain. Local evidence does not establish public Testnet support.</p></aside></section>
+<nav class="tabs" aria-label="Workbench"><button id="report-tab" aria-pressed="true">01 / Inspect a report</button><button id="scan-tab" aria-pressed="false">02 / Scan a log</button></nav>
+<section id="report-panel" class="workbench">
+<aside class="case-list"><p class="eyebrow">VERIFIED CASE FILES</p><button data-case="shielded" aria-pressed="true"><span>01</span><strong>Shielded receipt</strong><small>Confirmed note · clean control</small></button><button data-case="leaky" aria-pressed="false"><span>02</span><strong>Planted log leak</strong><small>Same payment · exposed marker</small></button><button data-case="transparent" aria-pressed="false"><span>03</span><strong>Transparent payment</strong><small>Public output · failed privacy checks</small></button><button data-case="request" aria-pressed="false"><span>04</span><strong>Request only</strong><small>No wallet · receipt unverified</small></button><div class="upload"><label for="report-file">Open your CLI report <span>↗</span></label><input id="report-file" type="file" accept="application/json,.json"><p>JSON stays in this browser. Uploaded results are supplied evidence, not independently verified here.</p></div></aside>
+<div class="report"><div class="report-head"><div><p id="report-origin" class="eyebrow">RECORDED CLI EVIDENCE</p><h2 id="report-title">Loading report…</h2></div><button id="download" class="outline" disabled>Download JSON ↓</button></div><p id="report-message" role="status"></p><div id="summary" class="summary"></div><div id="checks"></div><div id="boundaries" class="boundaries"></div></div>
+</section>
+<section id="scan-panel" hidden><div class="scan-heading"><h2>Where did your marker land?</h2><p>Paste synthetic markers and app output. Exact matching runs locally; the export contains hashes and line numbers, never the raw marker or log.</p></div><form id="scan-form"><div class="scan-inputs"><label>Canary markers <small>One per line. Use synthetic values.</small><textarea id="markers" required spellcheck="false" placeholder="DEMO-CANARY-7F3A"></textarea></label><label>Application log <small>Paste text or choose a UTF-8 log file.</small><textarea id="log" required spellcheck="false" placeholder="payment received&#10;debug: DEMO-CANARY-7F3A"></textarea><input id="log-file" type="file" accept="text/plain,.log,.txt"></label></div><div class="scan-actions"><button type="button" id="plant" class="outline">Load planted example</button><button type="button" id="clean" class="outline">Load clean example</button><button type="submit" class="primary">Scan locally →</button></div></form><p id="scan-message" role="status"></p><div id="scan-result"></div><button id="scan-download" class="outline" hidden>Download redacted scan ↓</button><p class="scan-limit">This scan covers only the supplied text and literal markers. It does not observe a wallet, transaction, browser telemetry, or network traffic.</p></section>
+<section class="cli"><div><p class="eyebrow">TAKE IT TO YOUR OWN ENVIRONMENT</p><h2>The wallet proof comes from the CLI.</h2><p>Run the kit beside your recipient wallet, then open its redacted report here. This browser demo inspects evidence and scans text; wallet observations are performed locally by Python.</p><a href="../README.md">Read the setup guide ↗</a></div><pre><code>python ztestkit.py \
+  --uri-file /private/request.txt \
+  --rpc-url http://127.0.0.1:50233 \
+  --rpc-cookie /private/rpc-cookie \
+  --account-uuid YOUR_ACCOUNT \
+  --txid YOUR_TRANSACTION \
+  --network regtest \
+  --canary-file /private/canaries.txt \
+  --log /private/app.log \
+  --report /private/report.json</code></pre></section>
+</main><footer><span>ElseMade · ZECATHON / Core & Tooling</span><span>Evidence has a boundary. Read it.</span></footer>
+</body></html>

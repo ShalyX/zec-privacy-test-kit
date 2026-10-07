@@ -12,6 +12,12 @@ The kit produced [a report with a planted leak](examples/sample-report.json) (`p
 
 ## Run
 
+### Browser demo
+
+From the repository root, run `python -m http.server 8765 --bind 127.0.0.1`, then open [the local workbench](http://127.0.0.1:8765/demo/). The static demo displays the recorded shielded, planted-leak, transparent, and request-only CLI reports. It accepts schema v1/v2 JSON reports and scans pasted or uploaded UTF-8 logs for synthetic canaries in the browser. The scan export contains marker hashes and line numbers, without the raw log or markers. It uses no external assets, analytics, wallet connection, or upload API. Serve over localhost or HTTPS for SHA-256 support.
+
+The demo displays supplied wallet evidence; it does not independently repeat wallet observations. Browser scans test only supplied text. Public Testnet remains unverified. See [demo notes](demo/README.md) for packaging and verification.
+
 Python 3.10+ and a running Zallet JSON-RPC endpoint are required for live observation. Keep Zallet bound to loopback. Put the receiver wallet's `user:password` in a private file outside the project; Zallet's RPC cookie file may also be used while it exists. Do not pass credentials, seed phrases, or private memos on the command line.
 
 From a clean checkout, run the request and log checks without a wallet:

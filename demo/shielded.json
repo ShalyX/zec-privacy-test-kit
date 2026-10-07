@@ -1,0 +1,76 @@
+{
+  "schema_version": 2,
+  "request_sha256": "6942483bf9565245c3232c41ac6d8dfa33973ea83d969d6b2a10c39af4a15529",
+  "network_scope": "regtest (operator asserted)",
+  "checks": [
+    {
+      "check": "recipient_preflight",
+      "payment_index": "",
+      "status": "pass",
+      "reason": "Wallet validated a shielded receiver",
+      "evidence": {
+        "address_sha256": "fcb93978529e4993243950b8379ebaaf7173a181c0d71c8d1826d9f0b264f6c0",
+        "network_hint": "regtest-or-testnet",
+        "memo_present": false,
+        "label_present": false,
+        "message_present": false,
+        "rpc_validated": true,
+        "receiver_types": [
+          "orchard",
+          "p2pkh",
+          "sapling"
+        ]
+      },
+      "evidence_source": "ZIP-321 request and recipient wallet receiver decoding",
+      "reproduce": "Rerun with the request and recipient wallet RPC; inspect receiver types.",
+      "privacy_boundary": "Receiver capability does not prove a payment used a shielded receiver."
+    },
+    {
+      "check": "recipient_observation",
+      "status": "pass",
+      "evidence": {
+        "txid": "f5ca24f4c2fff2d9fe67c7f547a3b57c2e6013a748393e6ada99fa32f39e23ca",
+        "wallet_synced": true,
+        "wallet_height": 130,
+        "node_height": 130,
+        "chain_status": "mined",
+        "confirmations": 1,
+        "account_sha256": "501f91848ea46df61485db1e4779e75b082b69afd11932b4a0729b3a564dc358",
+        "received_output_count": 1,
+        "observed_pools": [
+          "ironwood"
+        ],
+        "matching_shielded_output_count": 1,
+        "matching_pools": [
+          "ironwood"
+        ]
+      },
+      "reason": "Recipient wallet decrypted a confirmed shielded note of the requested amount",
+      "evidence_source": "Recipient wallet getwalletstatus and z_viewtransaction",
+      "reproduce": "Rerun with the same txid, recipient wallet, and account UUID after sync.",
+      "privacy_boundary": "A wallet view cannot establish network-wide privacy or external leaks."
+    },
+    {
+      "check": "canary_leak",
+      "status": "pass",
+      "reason": "No supplied canary found",
+      "evidence": {
+        "files_scanned": 1,
+        "findings": []
+      },
+      "evidence_source": "Supplied local logs and synthetic canary file",
+      "reproduce": "Rerun with the same canary file and logs; inspect reported file index and line.",
+      "privacy_boundary": "Literal matching covers only supplied files and canaries."
+    }
+  ],
+  "limits": [
+    "Wallet observation proves only this wallet's view of a confirmed note.",
+    "Canary scan covers only supplied files and literal markers.",
+    "No network observer, RPC transport, browser telemetry, or external logs were tested."
+  ],
+  "scenario": {
+    "state": "reported",
+    "operation_id_sha256": "ecaaab48050e6fb285134f6f3f469b18c35720241eb1a55cbf1282ffc99311c5",
+    "checkpoint_request_sha256": "6942483bf9565245c3232c41ac6d8dfa33973ea83d969d6b2a10c39af4a15529"
+  }
+}

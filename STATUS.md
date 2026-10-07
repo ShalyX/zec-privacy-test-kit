@@ -1,6 +1,6 @@
 # Current status
 
-Updated: **2026-10-08, Africa/Lagos**. Lifecycle: **M-04 QA passed / M-05 browser demo built, publication and video pending**. Public Testnet gate M-01b: **attempted and rerun, unverified due to NU7 wallet incompatibility in the tested builds**. Submission: **pending**.
+Updated: **2026-10-08, Africa/Lagos**. Lifecycle: **M-04 QA passed / M-05 demo hosted and source published, video pending**. Public Testnet gate M-01b: **attempted and rerun, unverified due to NU7 wallet incompatibility in the tested builds**. Submission: **pending**.
 
 ## Canonical documents
 
@@ -40,12 +40,12 @@ Updated: **2026-10-08, Africa/Lagos**. Lifecycle: **M-04 QA passed / M-05 browse
 
 ## Uncertainty and next action
 
-Public demo hosting passed on Oct 8: https://zec-privacy-test-kit.vercel.app/demo/. The stable URL loaded without sign-in and the hosted planted canary scan detected its marker. See [hosting notes](HOSTING.md). Public source repository and two-minute video remain pending.
+Public demo hosting passed on Oct 8: https://zec-privacy-test-kit.vercel.app/demo/. The stable URL loaded without sign-in and the hosted planted canary scan detected its marker. Public source is available at https://github.com/ShalyX/zec-privacy-test-kit. See [hosting notes](HOSTING.md). The two-minute video remains pending.
 
-The browser evidence workbench is built in `demo/`: four recorded cases, schema v1/v2 report upload, evidence and reproduction disclosure, browser-local canary scan and redacted scan export. Desktop and 390 px layouts plus sample cases, report upload and planted/clean scan controls were verified on Oct 8. Public hosting, repository URL, and video remain pending. This browser build did not rerun the public Testnet gate or reassess newer wallet releases.
+The browser evidence workbench is built in `demo/`: four recorded cases, schema v1/v2 report upload, evidence and reproduction disclosure, browser-local canary scan and redacted scan export. Desktop and 390 px layouts plus sample cases, report upload and planted/clean scan controls were verified on Oct 8. Public hosting and the repository URL are live; the video remains pending. This browser build did not rerun the public Testnet gate or reassess newer wallet releases.
 
 M-01b is unverified. Public Testnet funds are confirmed by the faucet, but the available light wallet cannot scan the NU7 chain. The local regtest proof remains isolated; the required public sender-to-receiver transaction and recipient scan have not happened. The cloned `zcash-devtool` requires Rust 1.88; Rust is absent and the official toolchain host did not resolve from this machine. Also inspect registered-only submission fields before final packaging.
 
-**Next action:** run M-05: publish the repository and working demo, produce the two-minute demo video, and prepare the exact submission copy. Use an NU7-compatible wallet build when one is available to complete [M-01b](PUBLIC_TESTNET_GATE.md). There is no deployment or public repository yet. Local Git history records the code and evidence slices.
+**Next action:** finish M-05: produce the two-minute demo video and prepare the exact submission copy. Use an NU7-compatible wallet build when one is available to complete [M-01b](PUBLIC_TESTNET_GATE.md). The public demo and source repository are live; local Git history records the code and evidence slices.
 
 Provisional remaining budget: up to 80 focused hours plus calendar buffer through Oct 28. Actual capacity is unknown. Backlog: hosted report viewer, multi-wallet adapters, additional privacy checks. No pending concept choice.

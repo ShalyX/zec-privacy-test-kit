@@ -1,6 +1,10 @@
 # ZEC privacy test kit
 
+[![Tests](https://github.com/ShalyX/zec-privacy-test-kit/actions/workflows/test.yml/badge.svg)](https://github.com/ShalyX/zec-privacy-test-kit/actions/workflows/test.yml)
+
 A local CLI that checks a ZIP-321 payment request, verifies a received shielded note in a Zallet wallet, and scans supplied app logs for synthetic leak markers. It writes a redacted JSON report. The read-only report command does not hold keys or submit payments, and the kit does not claim to measure every privacy leak.
+
+[Live evidence workbench](https://zec-privacy-test-kit.vercel.app/demo/) · [Source repository](https://github.com/ShalyX/zec-privacy-test-kit)
 
 `scenario_runner.py` adds a regtest-only payment path for builders who already run separate sender and receiver Zallet wallets plus Zebra. It submits with `FullPrivacy`, mines one local block, waits for recipient observation, and invokes the same report engine. A private checkpoint makes reruns idempotent.
 

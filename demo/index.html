@@ -1,17 +1,190 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ZEC privacy test kit — Evidence workbench</title><link rel="stylesheet" href="style.css"><script type="module" src="app.js"></script></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f4b942">
+  <meta name="description" content="Inspect redacted Zcash privacy evidence and scan application logs for synthetic canary leaks in your browser.">
+  <title>ZEC Privacy Test Kit — Follow the proof</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
 <body>
-<header><a class="wordmark" href="./"><span class="mark" aria-hidden="true">≋</span> ZEC privacy test kit</a><span class="edition">ELSEMADE / BUILD 01</span></header>
-<main>
-<section class="intro"><div><p class="eyebrow">PAYMENT PRIVACY / EVIDENCE WORKBENCH</p><h1>Make the leak<br>visible.</h1><p class="lead">Inspect a shielded payment, catch a log leak, and see exactly what the evidence proves.</p></div><aside class="scope"><span class="dot"></span><strong>Local regtest verified</strong><p>Separate wallets. Confirmed Ironwood notes. Real CLI reports.</p><hr><strong>Public Testnet: unverified</strong><p>The tested wallets could not scan the active NU7 chain. Local evidence does not establish public Testnet support.</p></aside></section>
-<nav class="tabs" aria-label="Workbench"><button id="report-tab" aria-pressed="true">01 / Inspect a report</button><button id="scan-tab" aria-pressed="false">02 / Scan a log</button></nav>
-<section id="report-panel" class="workbench">
-<aside class="case-list"><p class="eyebrow">VERIFIED CASE FILES</p><button data-case="shielded" aria-pressed="true"><span>01</span><strong>Shielded receipt</strong><small>Confirmed note · clean control</small></button><button data-case="leaky" aria-pressed="false"><span>02</span><strong>Planted log leak</strong><small>Same payment · exposed marker</small></button><button data-case="transparent" aria-pressed="false"><span>03</span><strong>Transparent payment</strong><small>Public output · failed privacy checks</small></button><button data-case="request" aria-pressed="false"><span>04</span><strong>Request only</strong><small>No wallet · receipt unverified</small></button><div class="upload"><label for="report-file">Open your CLI report <span>↗</span></label><input id="report-file" type="file" accept="application/json,.json"><p>JSON stays in this browser. Uploaded results are supplied evidence, not independently verified here.</p></div></aside>
-<div class="report"><div class="report-head"><div><p id="report-origin" class="eyebrow">RECORDED CLI EVIDENCE</p><h2 id="report-title">Loading report…</h2></div><button id="download" class="outline" disabled>Download JSON ↓</button></div><p id="report-message" role="status"></p><div id="summary" class="summary"></div><div id="checks"></div><div id="boundaries" class="boundaries"></div></div>
-</section>
-<section id="scan-panel" hidden><div class="scan-heading"><h2>Where did your marker land?</h2><p>Paste synthetic markers and app output. Exact matching runs locally; the export contains hashes and line numbers, never the raw marker or log.</p></div><form id="scan-form"><div class="scan-inputs"><label>Canary markers <small>One per line. Use synthetic values.</small><textarea id="markers" required spellcheck="false" placeholder="DEMO-CANARY-7F3A"></textarea></label><label>Application log <small>Paste text or choose a UTF-8 log file.</small><textarea id="log" required spellcheck="false" placeholder="payment received&#10;debug: DEMO-CANARY-7F3A"></textarea><input id="log-file" type="file" accept="text/plain,.log,.txt"></label></div><div class="scan-actions"><button type="button" id="plant" class="outline">Load planted example</button><button type="button" id="clean" class="outline">Load clean example</button><button type="submit" class="primary">Scan locally →</button></div></form><p id="scan-message" role="status"></p><div id="scan-result"></div><button id="scan-download" class="outline" hidden>Download redacted scan ↓</button><p class="scan-limit">This scan covers only the supplied text and literal markers. It does not observe a wallet, transaction, browser telemetry, or network traffic.</p></section>
-<section class="cli"><div><p class="eyebrow">TAKE IT TO YOUR OWN ENVIRONMENT</p><h2>The wallet proof comes from the CLI.</h2><p>Run the kit beside your recipient wallet, then open its redacted report here. This browser demo inspects evidence and scans text; wallet observations are performed locally by Python.</p><a href="../README.md">Read the setup guide ↗</a></div><pre><code>python ztestkit.py \
+  <a class="skip-link" href="#workbench">Skip to evidence workbench</a>
+
+  <header class="site-header">
+    <a class="wordmark" href="./" aria-label="ZEC Privacy Test Kit home">
+      <span class="brand-signal" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span>ZEC <b>Privacy Test Kit</b></span>
+    </a>
+    <div class="header-meta">
+      <span class="live-dot" aria-hidden="true"></span>
+      <span>Local proof desk</span>
+      <span class="edition">ELSEMADE / 01</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span>01</span> PAYMENT PRIVACY / EVIDENCE</p>
+        <h1 id="hero-title">Follow the proof.<br><em>Find the leak.</em></h1>
+        <p class="lead">Turn a shielded payment into evidence you can inspect. Verify what the recipient wallet saw, then catch sensitive values that escaped into logs.</p>
+        <div class="hero-actions">
+          <a class="primary" href="#workbench">Inspect evidence <span aria-hidden="true">↓</span></a>
+          <button class="text-action" id="hero-scan" type="button">Run a local log scan <span aria-hidden="true">↗</span></button>
+        </div>
+        <ul class="trust-row" aria-label="Privacy properties">
+          <li><strong>LOCAL</strong> Browser processing</li>
+          <li><strong>REDACTED</strong> Hashes, never raw markers</li>
+          <li><strong>OPEN</strong> JSON evidence</li>
+        </ul>
+      </div>
+
+      <aside class="proof-map" aria-label="Verified payment evidence path">
+        <div class="proof-map-head">
+          <span>EXHIBIT / 001</span>
+          <span class="proof-stamp">REGTEST VERIFIED</span>
+        </div>
+        <div class="trace" aria-hidden="true">
+          <div class="trace-line"><span></span></div>
+          <div class="trace-step">
+            <b>01</b>
+            <div><small>REQUEST</small><strong>Shielded receiver</strong><code>fcb939…f6c0</code></div>
+          </div>
+          <div class="trace-step">
+            <b>02</b>
+            <div><small>RECIPIENT WALLET</small><strong>Confirmed Ironwood note</strong><code>1 matching output</code></div>
+          </div>
+          <div class="trace-step">
+            <b>03</b>
+            <div><small>LOG SCAN</small><strong>No canary exposed</strong><code>0 findings</code></div>
+          </div>
+        </div>
+        <p class="scope-note"><span>PUBLIC TESTNET</span> Unverified — the tested wallets could not scan the active NU7 chain.</p>
+      </aside>
+    </section>
+
+    <section id="workbench" class="desk" aria-labelledby="desk-title">
+      <div class="desk-heading">
+        <div>
+          <p class="eyebrow"><span>02</span> PROOF DESK</p>
+          <h2 id="desk-title">Interrogate the evidence.</h2>
+        </div>
+        <p>Choose a recorded case or bring your own CLI report. Everything is processed in this tab.</p>
+      </div>
+
+      <nav class="tabs" aria-label="Evidence tools">
+        <button id="report-tab" aria-pressed="true"><span>01</span> Inspect a report</button>
+        <button id="scan-tab" aria-pressed="false"><span>02</span> Scan a log</button>
+      </nav>
+
+      <section id="report-panel" class="workbench">
+        <aside class="case-list" aria-label="Recorded case files">
+          <div class="case-list-head">
+            <p class="eyebrow">RECORDED CASES / 04</p>
+            <span>SELECT</span>
+          </div>
+          <button data-case="shielded" aria-pressed="true">
+            <span class="case-index">01</span>
+            <span class="case-copy"><strong>Shielded receipt</strong><small>Confirmed note · clean control</small></span>
+            <span class="case-verdict is-pass">3/3</span>
+          </button>
+          <button data-case="leaky" aria-pressed="false">
+            <span class="case-index">02</span>
+            <span class="case-copy"><strong>Planted log leak</strong><small>Same payment · marker exposed</small></span>
+            <span class="case-verdict is-fail">LEAK</span>
+          </button>
+          <button data-case="transparent" aria-pressed="false">
+            <span class="case-index">03</span>
+            <span class="case-copy"><strong>Transparent payment</strong><small>Public output · privacy failed</small></span>
+            <span class="case-verdict is-fail">FAIL</span>
+          </button>
+          <button data-case="request" aria-pressed="false">
+            <span class="case-index">04</span>
+            <span class="case-copy"><strong>Request only</strong><small>No wallet · receipt unknown</small></span>
+            <span class="case-verdict is-open">OPEN</span>
+          </button>
+          <div class="upload">
+            <p class="eyebrow">YOUR EVIDENCE</p>
+            <label class="file-trigger" for="report-file" role="button" tabindex="0">Open CLI report <span aria-hidden="true">＋</span></label>
+            <input id="report-file" type="file" accept="application/json,.json">
+            <p>JSON stays in this browser. Uploaded results remain supplied evidence.</p>
+          </div>
+        </aside>
+
+        <div class="report" aria-live="polite">
+          <div class="report-head">
+            <div>
+              <p id="report-origin" class="eyebrow">RECORDED CLI EVIDENCE</p>
+              <h3 id="report-title">Loading report…</h3>
+            </div>
+            <button id="download" class="outline" disabled>Export JSON <span aria-hidden="true">↓</span></button>
+          </div>
+
+          <div class="verdict-strip">
+            <div>
+              <span class="verdict-label">VERDICT</span>
+              <strong id="report-verdict">READING</strong>
+            </div>
+            <p id="report-message" role="status">Loading recorded CLI evidence…</p>
+          </div>
+
+          <div id="summary" class="summary" aria-label="Check totals"></div>
+          <div id="checks" class="checks"></div>
+          <div id="boundaries" class="boundaries"></div>
+        </div>
+      </section>
+
+      <section id="scan-panel" class="scan-panel" hidden>
+        <div class="scan-heading">
+          <div>
+            <p class="eyebrow">BROWSER-LOCAL CANARY SCAN</p>
+            <h3>Did a private value reach the log?</h3>
+          </div>
+          <p>Plant a synthetic marker, paste the application output, and inspect every exact match. The export keeps only hashes and line numbers.</p>
+        </div>
+        <form id="scan-form">
+          <div class="scan-inputs">
+            <label>
+              <span class="field-number">01</span>
+              Canary markers
+              <small>One synthetic value per line.</small>
+              <textarea id="markers" required spellcheck="false" placeholder="DEMO-CANARY-7F3A"></textarea>
+            </label>
+            <label>
+              <span class="field-number">02</span>
+              Application log
+              <small>Paste text or choose a UTF-8 log file.</small>
+              <textarea id="log" required spellcheck="false" placeholder="payment received&#10;debug: DEMO-CANARY-7F3A"></textarea>
+              <input id="log-file" type="file" accept="text/plain,.log,.txt">
+            </label>
+          </div>
+          <div class="scan-actions">
+            <div>
+              <button type="button" id="plant" class="outline">Load planted example</button>
+              <button type="button" id="clean" class="outline">Load clean example</button>
+            </div>
+            <button type="submit" class="primary">Scan this log <span aria-hidden="true">→</span></button>
+          </div>
+        </form>
+        <p id="scan-message" role="status"></p>
+        <div id="scan-result" class="checks"></div>
+        <button id="scan-download" class="outline" hidden>Export redacted scan <span aria-hidden="true">↓</span></button>
+        <p class="scan-limit"><strong>Evidence boundary:</strong> this scan covers only the supplied text and literal markers. It does not observe a wallet, transaction, browser telemetry, or network traffic.</p>
+      </section>
+    </section>
+
+    <section class="cli" aria-labelledby="cli-title">
+      <div class="cli-copy">
+        <p class="eyebrow"><span>03</span> COLLECT REAL EVIDENCE</p>
+        <h2 id="cli-title">The proof begins beside the wallet.</h2>
+        <p>Run the CLI beside your recipient wallet. It observes the payment, scans your logs, and writes the redacted report this desk can inspect.</p>
+        <a href="../README.md">Open the setup guide <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="terminal" aria-label="CLI command example">
+        <div class="terminal-head"><span>TERMINAL / REGTEST</span><span>LOCAL ONLY</span></div>
+        <pre><code><span>python</span> ztestkit.py \
   --uri-file /private/request.txt \
   --rpc-url http://127.0.0.1:50233 \
   --rpc-cookie /private/rpc-cookie \
@@ -20,6 +193,15 @@
   --network regtest \
   --canary-file /private/canaries.txt \
   --log /private/app.log \
-  --report /private/report.json</code></pre></section>
-</main><footer><span>ElseMade · ZECATHON / Core & Tooling</span><span>Evidence has a boundary. Read it.</span></footer>
-</body></html>
+  --report /private/report.json</code></pre>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>ELSEMADE × ZECATHON</span>
+    <strong>Evidence has a boundary. Read it.</strong>
+    <span>CORE &amp; TOOLING / 2026</span>
+  </footer>
+</body>
+</html>

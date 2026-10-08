@@ -1,5 +1,13 @@
 # M-01b public Testnet validation gate
 
+## Fresh validation — 2026-10-08, approximately 02:15–02:17 UTC
+
+**Result: unverified.** The existing isolated Zingo PC 2.0.26-194 wallet copy loaded and launched sync against `https://testnet.zec.rocks:443`. The second poll returned `sync_failed`, recovery `server_unavailable`, with reason `server error ← server returned invalid transaction. invalid consensus branch id 0x77190ad9`. The server subsequently reported height **4,476,858**. No spendable balance was established, no sender-to-receiver payment was constructed or broadcast, and no recipient confirmation was observed. Faucet status was not rechecked in this run.
+
+The official release API now lists [Zingo PC 2.0.26-195](https://github.com/zingolabs/zingo-pc/releases/tag/zingo-pc-2.0.26-195), published October 6. Its tagged `native/Cargo.lock` still pins `zcash_protocol` 0.10.6. This version was inspected at source level only, not executed; the runtime result above applies to build 194. Zallet's latest published release remains v0.1.0-beta.3.
+
+[Upstream issue #2859](https://github.com/zingolabs/zingolib/issues/2859) remains open. An October 7 contributor comment describes a source patch enabling NU7, setting Testnet activation to 4,465,026 and branch ID to `0x77190ad9`, and reports a mined transaction using that patched build. This is third-party evidence, not validation of this kit. The next concrete route is to review and reproduce that patch in an isolated source build, prove sync and funding observation on wallet copies, then perform the separate-recipient payment gate. No seeds or wallet files were shared with the contributor or added to this repository.
+
 Attempted **2026-10-04, 19:14–19:34 UTC**. Result: **unverified / blocked by wallet compatibility**. This is not a public payment pass.
 
 ## Network and funding observations

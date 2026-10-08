@@ -40,6 +40,8 @@ Updated: **2026-10-08, Africa/Lagos**. Lifecycle: **M-04 QA passed / M-05 demo h
 
 ## Uncertainty and next action
 
+Fresh public Testnet validation on Oct 8 loaded the isolated Zingo 194 wallet copy but failed sync on branch `0x77190ad9` at server height 4,476,858. No payment was sent. Build 195 is published and still pins `zcash_protocol` 0.10.6; it was not runtime-tested. An upstream contributor now reports a working source patch, which needs independent review and reproduction before using wallet copies. See the latest [gate record](PUBLIC_TESTNET_GATE.md).
+
 Public demo hosting passed on Oct 8: https://zec-privacy-test-kit.vercel.app/demo/. The stable URL loaded without sign-in and the hosted planted canary scan detected its marker. Public source is available at https://github.com/ShalyX/zec-privacy-test-kit. See [hosting notes](HOSTING.md). The two-minute video remains pending.
 
 The browser evidence workbench is built in `demo/`: four recorded cases, schema v1/v2 report upload, evidence and reproduction disclosure, browser-local canary scan and redacted scan export. Desktop and 390 px layouts plus sample cases, report upload and planted/clean scan controls were verified on Oct 8. Public hosting and the repository URL are live; the video remains pending. This browser build did not rerun the public Testnet gate or reassess newer wallet releases.

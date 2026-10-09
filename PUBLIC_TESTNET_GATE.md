@@ -1,5 +1,17 @@
 # M-01b public Testnet validation gate
 
+## NU7 source-build rerun - 2026-10-09
+
+**Result: unverified.** An isolated Zingo CLI source build accepted the active NU7 Testnet branch and completed a full sender-wallet scan, but found no funded note. No payment was proposed or broadcast.
+
+The build used Zingo `zingolib_v6.0.0` at commit `c6381534f802b1022041beda4b01c106ad132329`, with the Testnet NU7 backport from ZECKED commit `b247aaa7797b731a375aa97b7fa0fe9722df586d`. The patched `zcash_protocol` tests passed **36/36**. The CLI was built in the private work directory with Rust 1.97.1 and `clearnet-test-mode`; requests to `https://testnet.zec.rocks:443` exposed this machine's IP to that indexer. The build did not change the product repository or original wallet files.
+
+The sender wallet was copied into a separate data directory. Its derived address matched the address submitted to Fauzec, and the original wallet file's hash stayed unchanged. The first successful sync reached wallet height **4,481,818** but showed no notes, transactions, or balance. To rule out a stale saved scan checkpoint, the copied wallet was backed up, cleared, and scanned again from its recorded birthday **4,465,091** through **4,481,850**. The rescan reported **16,760 blocks**, **226 Sapling**, **20 Orchard**, and **33,594 Ironwood** outputs, with **100%** of reported outputs scanned. All pool balances remained zero.
+
+The faucet's earlier `confirmed` status and txid remain faucet evidence only. This run did not independently retrieve that raw transaction or establish why the wallet found no note. A read-only transaction lookup was being built when the environment changed and blocked WSL access; the lookup did not produce a result. The funded sender is therefore **not** considered spendable. The separately created receiver was not used, and R-03b remains open.
+
+Next gate: retrieve the faucet transaction from a public Testnet node and inspect its height and output pools; reconcile it with the sender address and wallet scan. Only after a confirmed spendable note appears should the small sender-to-receiver payment and separate recipient observation proceed. Private wallet files, seeds, and full addresses remain outside this repository.
+
 ## Fresh validation — 2026-10-08, approximately 02:15–02:17 UTC
 
 **Result: unverified.** The existing isolated Zingo PC 2.0.26-194 wallet copy loaded and launched sync against `https://testnet.zec.rocks:443`. The second poll returned `sync_failed`, recovery `server_unavailable`, with reason `server error ← server returned invalid transaction. invalid consensus branch id 0x77190ad9`. The server subsequently reported height **4,476,858**. No spendable balance was established, no sender-to-receiver payment was constructed or broadcast, and no recipient confirmation was observed. Faucet status was not rechecked in this run.

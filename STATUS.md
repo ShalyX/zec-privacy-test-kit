@@ -1,6 +1,6 @@
 # Current status
 
-Updated: **2026-10-09, Africa/Lagos**. Lifecycle: **M-04 QA passed / M-05 demo hosted and source published, video pending**. Public Testnet gate M-01b: **NU7-compatible scan completed; sender balance zero, transaction unverified**. Submission: **pending**.
+Updated: **2026-10-09, Africa/Lagos**. Lifecycle: **M-04 QA passed / M-05 demo hosted and source published, video pending**. Public Testnet gate M-01b: **NU7-compatible scan completed; sender balance zero, two faucet txids absent from public node and independent explorer**. Submission: **pending**.
 
 ## Canonical documents
 
@@ -18,7 +18,7 @@ Updated: **2026-10-09, Africa/Lagos**. Lifecycle: **M-04 QA passed / M-05 demo h
 
 | Item | Evidence | Date |
 |---|---|---|
-| Patched NU7 wallet scan completed | Isolated source build accepted Testnet NU7. A full rescan of the copied sender from height 4,465,091 to 4,481,850 found no notes or balance. The faucet tx was not independently retrieved, so no payment was sent and the public gate remains unverified. [Gate record](PUBLIC_TESTNET_GATE.md). | Oct 9 |
+| Patched NU7 wallet scan and chain lookup completed | Isolated source build accepted Testnet NU7. A full rescan of the copied sender from height 4,465,091 to 4,481,850 found no notes or balance. Both the old and fresh Fauzec txids were absent from a public node and independent explorer despite Fauzec's `confirmed` status. No payment was sent; the gate remains unverified. [Gate record](PUBLIC_TESTNET_GATE.md). | Oct 9 |
 | ZECATHON registration completed and rewards confirmed | User's direct confirmation in this chat; receipt/details not independently inspected. | Oct 4 |
 | Concept locked: payment privacy test kit | User's direction in this chat. | Oct 4 |
 | Official public schedule, tracks, rules, criteria inspected | [Event site](https://thezecathon.com/) and [public content file](https://thezecathon.com/darkpool/data.js). | Oct 4 |
@@ -41,14 +41,14 @@ Updated: **2026-10-09, Africa/Lagos**. Lifecycle: **M-04 QA passed / M-05 demo h
 
 ## Uncertainty and next action
 
-The Oct 9 patched Zingo source build successfully scanned across NU7, eliminating the earlier branch-ID blocker. The copied sender wallet still showed zero balance after a full scan from its birthday through height 4,481,850. The faucet txid needs independent chain lookup and reconciliation before a payment can be attempted. See the latest [gate record](PUBLIC_TESTNET_GATE.md).
+The Oct 9 patched Zingo source build successfully scanned across NU7, eliminating the earlier branch-ID blocker. The copied sender wallet showed zero balance after a full scan from its birthday through height 4,481,850. Fauzec marked both the old and fresh claim confirmed, but a public node and independent explorer found neither txid. An alternate faucet reported its node behind and miner inactive. See the latest [gate record](PUBLIC_TESTNET_GATE.md).
 
 Public demo hosting passed on Oct 8: https://zec-privacy-test-kit.vercel.app/demo/. The stable URL loaded without sign-in and the hosted planted canary scan detected its marker. Public source is available at https://github.com/ShalyX/zec-privacy-test-kit. See [hosting notes](HOSTING.md). The two-minute video remains pending.
 
 The browser evidence workbench is built in `demo/`: four recorded cases, schema v1/v2 report upload, evidence and reproduction disclosure, browser-local canary scan and redacted scan export. Desktop and 390 px layouts plus sample cases, report upload and planted/clean scan controls were verified on Oct 8. Public hosting and the repository URL are live; the video remains pending. This browser build did not rerun the public Testnet gate or reassess newer wallet releases.
 
-M-01b is unverified. Fauzec reported funding confirmed, but the NU7-capable sender scan found no spendable note. The local regtest proof remains isolated; the required public sender-to-receiver transaction and recipient scan have not happened. Also inspect registered-only submission fields before final packaging.
+M-01b is unverified. Fauzec reported two claims confirmed, but neither txid appeared in the checked public chain sources and the NU7-capable sender scan found no spendable note. The local regtest proof remains isolated; the required public sender-to-receiver transaction and recipient scan have not happened. Also inspect registered-only submission fields before final packaging.
 
-**Next action:** reconcile the faucet txid with a public Testnet node and the sender's full scan, then complete [M-01b](PUBLIC_TESTNET_GATE.md) if a spendable note is confirmed. Finish M-05: produce the two-minute demo video and prepare the exact submission copy. The public demo and source repository are live; local Git history records the code and evidence slices.
+**Next action:** obtain a funding txid visible on the public Testnet chain and restore WSL access for a sender rescan. Complete [M-01b](PUBLIC_TESTNET_GATE.md) only after a spendable sender note is confirmed. Finish M-05: produce the two-minute demo video and prepare the exact submission copy. The public demo and source repository are live; local Git history records the code and evidence slices.
 
 Provisional remaining budget: up to 80 focused hours plus calendar buffer through Oct 28. Actual capacity is unknown. Backlog: hosted report viewer, multi-wallet adapters, additional privacy checks. No pending concept choice.

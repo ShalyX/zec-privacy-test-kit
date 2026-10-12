@@ -348,6 +348,75 @@ def zingo_observe(payment, txid, account_id, notes, height, chain):
     return result
 
 
+def public_chain_exposure(chain, txid):
+    result = {"check": "public_chain_exposure", "status": "unverified",
+              "evidence": {"txid": txid},
+              "evidence_source": "Operator-supplied ZecBlock Testnet transaction JSON snapshot",
+              "reproduce": "Save a fresh transaction response from the public explorer and rerun with --chain-proof-file.",
+              "privacy_boundary": "This checks visible transparent activity and public pool balances in one supplied snapshot. Fees, timing, and network metadata can still be public; the snapshot is not independently authenticated by the kit."}
+    if chain is None:
+        result["reason"] = "No public-chain snapshot supplied"
+        return result
+    if not isinstance(chain, dict) or not isinstance(chain.get("data"), dict):
+        raise CheckError("Invalid public-chain snapshot")
+    public = chain["data"]
+    public_txid = public.get("txid")
+    block_height = public.get("blockHeight")
+    try:
+        block_height = int(block_height) if type(block_height) in (str, int) else None
+    except ValueError:
+        block_height = None
+    if (not isinstance(public_txid, str) or public_txid.lower() != txid.lower()
+            or public.get("isCanonical") is not True or public.get("status") != "confirmed"
+            or block_height is None or block_height <= 0):
+        result["reason"] = "Snapshot does not identify a canonical confirmed transaction"
+        return result
+    result["evidence"]["block_height"] = block_height
+    inputs, outputs = public.get("inputs"), public.get("outputs")
+    input_count, output_count = public.get("inputCount"), public.get("outputCount")
+    if (type(input_count) is not int or type(output_count) is not int or
+            input_count < 0 or output_count < 0 or
+            not isinstance(inputs, list) or not isinstance(outputs, list) or
+            len(inputs) != input_count or len(outputs) != output_count):
+        result["reason"] = "Transparent input and output fields are missing or inconsistent"
+        return result
+    result["evidence"].update({"transparent_input_count": input_count,
+                               "transparent_output_count": output_count})
+    if input_count or output_count:
+        result["status"] = "fail"
+        result["reason"] = "Public transaction contains transparent inputs or outputs"
+        return result
+    pools = ("sapling", "orchard", "ironwood")
+    if public.get("hasSprout") is not False:
+        result["reason"] = "Sprout activity or incomplete pool fields are not supported by this check"
+        return result
+    active_pools = []
+    nonzero_pools = []
+    for pool in pools:
+        present = public.get("has" + pool.title())
+        raw_balance = public.get("valueBalance" + pool.title() + "Zat")
+        if type(present) is not bool or type(raw_balance) not in (str, int) or not re.fullmatch(r"-?[0-9]+", str(raw_balance)):
+            result["reason"] = "Shielded pool fields are missing or invalid"
+            return result
+        balance = int(raw_balance)
+        if not present and balance != 0:
+            result["reason"] = "Shielded pool flag and public balance disagree"
+            return result
+        if present:
+            active_pools.append(pool)
+        if balance != 0:
+            nonzero_pools.append(pool)
+    result["evidence"].update({"active_shielded_pools": active_pools,
+                               "nonzero_pool_balance_count": len(nonzero_pools)})
+    if len(nonzero_pools) > 1:
+        result["status"] = "fail"
+        result["reason"] = "Public net value balances appear in multiple shielded pools"
+    else:
+        result["status"] = "pass"
+        result["reason"] = "No transparent inputs, outputs, or cross-pool net value movement observed"
+    return result
+
+
 def scan_canaries(log_paths, canary_path):
     canaries = [line.strip() for line in Path(canary_path).read_text(encoding="utf-8").splitlines() if line.strip()]
     if not canaries:
@@ -377,6 +446,9 @@ CHECK_CONTEXT = {
     "recipient_observation": ("Recipient wallet getwalletstatus and z_viewtransaction",
                               "Rerun with the same txid, recipient wallet, and account UUID after sync.",
                               "A wallet view cannot establish network-wide privacy or external leaks."),
+    "public_chain_exposure": ("Supplied public transaction snapshot",
+                              "Supply a fresh public transaction snapshot for the same txid.",
+                              "Only fields visible in the supplied snapshot were checked."),
     "canary_leak": ("Supplied local logs and synthetic canary file",
                     "Rerun with the same canary file and logs; inspect reported file index and line.",
                     "Literal matching covers only supplied files and canaries."),
@@ -458,6 +530,7 @@ def main(argv=None):
             matched_addresses = [item for item in addresses if item.get("encoded_address") == payments[0]["address"]]
             account_id = matched_addresses[0].get("account") if matched_addresses else None
             checks.append(zingo_observe(payments[0], args.txid, account_id, notes, height, chain))
+            checks.append(public_chain_exposure(chain, args.txid))
         else:
             checks = preflight(payments, wallet)
         if args.txid and not zingo_mode:

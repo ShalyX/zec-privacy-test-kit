@@ -15,9 +15,18 @@ TXID = "a" * 64
 
 
 class ZingoAdapter(unittest.TestCase):
+    def test_public_example_omits_private_derived_identifiers(self):
+        example = ROOT / "examples" / "public-testnet-report.json"
+        report = json.loads(example.read_text(encoding="utf-8"))
+        self.assertNotIn("request_sha256", report)
+        for check in report["checks"]:
+            self.assertNotIn("address_sha256", check.get("evidence", {}))
+            self.assertNotIn("account_sha256", check.get("evidence", {}))
+        self.assertEqual(example.read_bytes(), (ROOT / "demo" / "testnet.json").read_bytes())
+
     def run_case(self, *, address=ADDRESS, note_value=100000, note_status="confirmed at block height 4490357",
                  note_scope="external", wallet_height=4490359, chain_txid=TXID, canonical=True,
-                 include_chain=True, wallet_account=0):
+                 include_chain=True, wallet_account=0, chain_overrides=None):
         with tempfile.TemporaryDirectory(dir=ROOT) as directory:
             folder = Path(directory)
             inputs = {
@@ -29,8 +38,13 @@ class ZingoAdapter(unittest.TestCase):
                           "orchard_notes": {"note_summaries": []}, "sapling_notes": {"note_summaries": []}},
                 "height": {"height": wallet_height},
                 "chain": {"data": {"txid": chain_txid, "blockHeight": "4490357",
-                          "isCanonical": canonical, "status": "confirmed", "hasIronwood": True}}
+                          "isCanonical": canonical, "status": "confirmed", "hasIronwood": True,
+                          "hasOrchard": False, "hasSapling": False, "hasSprout": False,
+                          "inputCount": 0, "outputCount": 0, "inputs": [], "outputs": [],
+                          "valueBalanceIronwoodZat": "10000", "valueBalanceOrchardZat": "0",
+                          "valueBalanceSaplingZat": "0"}}
             }
+            inputs["chain"]["data"].update(chain_overrides or {})
             for name, value in inputs.items():
                 (folder / f"{name}.json").write_text(json.dumps(value), encoding="utf-8")
             args = ["--uri", f"zcash:{address}?amount=0.001", "--network", "testnet",
@@ -54,8 +68,9 @@ class ZingoAdapter(unittest.TestCase):
     def test_confirmed_receiver_note_passes_with_redacted_evidence(self):
         code, report = self.run_case()
         self.assertEqual(code, 0)
-        self.assertEqual([c["status"] for c in report["checks"]], ["pass", "pass", "pass"])
+        self.assertEqual([c["status"] for c in report["checks"]], ["pass", "pass", "pass", "pass"])
         self.assertEqual(report["checks"][1]["evidence"]["matching_pools"], ["ironwood"])
+        self.assertEqual(report["checks"][2]["check"], "public_chain_exposure")
 
     def test_wrong_wallet_address_fails_preflight(self):
         code, report = self.run_case(address="utest1" + "r" * 80)
@@ -90,6 +105,39 @@ class ZingoAdapter(unittest.TestCase):
         code, report = self.run_case(wallet_account=None)
         self.assertEqual(code, 3)
         self.assertEqual([c["status"] for c in report["checks"][:2]], ["unverified", "unverified"])
+
+    def test_transparent_input_or_output_fails_without_exporting_address(self):
+        for field, count in (("inputs", "inputCount"), ("outputs", "outputCount")):
+            with self.subTest(field=field):
+                overrides = {field: [{"address": "t1PRIVATEADDRESS", "valueZat": 12345}], count: 1}
+                code, report = self.run_case(chain_overrides=overrides)
+                self.assertEqual(code, 1)
+                self.assertEqual(report["checks"][2]["status"], "fail")
+                self.assertNotIn("t1PRIVATEADDRESS", json.dumps(report))
+                self.assertNotIn("12345", json.dumps(report))
+
+    def test_cross_pool_net_value_is_flagged(self):
+        code, report = self.run_case(chain_overrides={"hasOrchard": True,
+            "valueBalanceOrchardZat": "90000", "valueBalanceIronwoodZat": "-80000"})
+        self.assertEqual(code, 1)
+        check = report["checks"][2]
+        self.assertEqual(check["status"], "fail")
+        self.assertEqual(check["evidence"]["nonzero_pool_balance_count"], 2)
+        self.assertNotIn("90000", json.dumps(check))
+
+    def test_multiple_pools_without_net_crossing_do_not_fail(self):
+        code, report = self.run_case(chain_overrides={"hasOrchard": True,
+            "valueBalanceOrchardZat": "0"})
+        self.assertEqual(code, 0)
+        self.assertEqual(report["checks"][2]["status"], "pass")
+
+    def test_missing_or_inconsistent_explorer_fields_remain_unverified(self):
+        for overrides in ({"inputCount": None}, {"inputs": [{"address": "t1PRIVATEADDRESS"}]},
+                          {"valueBalanceIronwoodZat": None}, {"hasSprout": True}):
+            with self.subTest(overrides=overrides):
+                code, report = self.run_case(chain_overrides=overrides)
+                self.assertEqual(code, 3)
+                self.assertEqual(report["checks"][2]["status"], "unverified")
 
 
 if __name__ == "__main__":

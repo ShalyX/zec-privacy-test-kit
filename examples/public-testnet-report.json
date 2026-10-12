@@ -1,6 +1,5 @@
 {
   "schema_version": 2,
-  "request_sha256": "ac1290ddfda2cf23a0fb453fa4018d09ce2a727d978b577a77bf614359c7a357",
   "network_scope": "testnet (operator asserted)",
   "checks": [
     {
@@ -9,13 +8,11 @@
       "status": "pass",
       "reason": "Recipient wallet export derives the requested Testnet address",
       "evidence": {
-        "address_sha256": "c1ca8108dfdcdb498aea6a588bb964508ad9df5542acefc64cdebcbb8c2fbafc",
         "network_hint": "testnet",
         "wallet_address_match": true,
         "memo_present": false,
         "label_present": false,
-        "message_present": false,
-        "account_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        "message_present": false
       },
       "evidence_source": "ZIP-321 request and recipient Zingo addresses JSON export",
       "reproduce": "Export addresses from the same recipient wallet and compare the requested address locally.",
@@ -39,6 +36,24 @@
       "reproduce": "Re-export notes and height from the same recipient wallet; save a fresh public transaction JSON response and rerun.",
       "privacy_boundary": "Local exports and an operator-supplied API response are snapshots. This does not prove network-wide privacy or current chain state.",
       "reason": "Recipient wallet decrypted a matching confirmed shielded Testnet note"
+    },
+    {
+      "check": "public_chain_exposure",
+      "status": "pass",
+      "evidence": {
+        "txid": "6579de562af0c6800f80eac2bb163625b24df7a71040c96aa0a22a9415e1e0ab",
+        "block_height": 4490357,
+        "transparent_input_count": 0,
+        "transparent_output_count": 0,
+        "active_shielded_pools": [
+          "ironwood"
+        ],
+        "nonzero_pool_balance_count": 1
+      },
+      "evidence_source": "Operator-supplied ZecBlock Testnet transaction JSON snapshot",
+      "reproduce": "Save a fresh transaction response from the public explorer and rerun with --chain-proof-file.",
+      "privacy_boundary": "This checks visible transparent activity and public pool balances in one supplied snapshot. Fees, timing, and network metadata can still be public; the snapshot is not independently authenticated by the kit.",
+      "reason": "No transparent inputs, outputs, or cross-pool net value movement observed"
     },
     {
       "check": "canary_leak",

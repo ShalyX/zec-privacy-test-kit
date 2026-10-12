@@ -82,7 +82,7 @@
       <section id="report-panel" class="workbench">
         <aside class="case-list" aria-label="Recorded case files">
           <div class="case-list-head">
-            <p class="eyebrow">RECORDED CASES / 04</p>
+            <p class="eyebrow">RECORDED CASES / 05</p>
             <span>SELECT</span>
           </div>
           <button data-case="shielded" aria-pressed="true">
@@ -90,18 +90,23 @@
             <span class="case-copy"><strong>Shielded receipt</strong><small>Confirmed note · clean control</small></span>
             <span class="case-verdict is-pass">3/3</span>
           </button>
-          <button data-case="leaky" aria-pressed="false">
+          <button data-case="testnet" aria-pressed="false">
             <span class="case-index">02</span>
+            <span class="case-copy"><strong>Public Testnet</strong><small>NU7 receipt and chain exposure</small></span>
+            <span class="case-verdict is-pass">4/4</span>
+          </button>
+          <button data-case="leaky" aria-pressed="false">
+            <span class="case-index">03</span>
             <span class="case-copy"><strong>Planted log leak</strong><small>Same payment · marker exposed</small></span>
             <span class="case-verdict is-fail">LEAK</span>
           </button>
           <button data-case="transparent" aria-pressed="false">
-            <span class="case-index">03</span>
+            <span class="case-index">04</span>
             <span class="case-copy"><strong>Transparent payment</strong><small>Public output · privacy failed</small></span>
             <span class="case-verdict is-fail">FAIL</span>
           </button>
           <button data-case="request" aria-pressed="false">
-            <span class="case-index">04</span>
+            <span class="case-index">05</span>
             <span class="case-copy"><strong>Request only</strong><small>No wallet · receipt unknown</small></span>
             <span class="case-verdict is-open">OPEN</span>
           </button>

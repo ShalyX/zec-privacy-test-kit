@@ -1,6 +1,7 @@
 const $ = id => document.getElementById(id);
 const titles = {
   shielded: 'Shielded receipt',
+  testnet: 'Public Testnet receipt',
   leaky: 'Planted log leak',
   transparent: 'Transparent payment',
   request: 'Request only'
@@ -8,6 +9,7 @@ const titles = {
 const labels = {
   recipient_preflight: 'Recipient preflight',
   recipient_observation: 'Recipient observation',
+  public_chain_exposure: 'Public-chain exposure',
   canary_leak: 'Canary leak scan'
 };
 let activeReport;
@@ -39,6 +41,7 @@ function validate(report) {
 function nextAction(check) {
   if (check.status === 'unverified') return 'Next: collect the missing wallet or scan evidence with the CLI before treating this check as verified.';
   if (check.status === 'fail' && check.check === 'canary_leak') return 'Next: remove the sensitive logging path and rerun the same canary control.';
+  if (check.status === 'fail' && check.check === 'public_chain_exposure') return 'Next: inspect the visible transaction components and rerun with a payment that avoids the exposed path.';
   if (check.status === 'fail') return 'Next: use a shielded receiver and verify a matching confirmed note in the recipient wallet.';
   return 'Next: preserve this evidence and rerun after changes to the payment flow.';
 }
@@ -106,7 +109,7 @@ async function loadCase(key) {
     if (!response.ok) throw Error('The sample report could not be loaded. Serve this folder over HTTP.');
     const report = validate(await response.json());
     if (token !== generation) return;
-    render(report, titles[key], key === 'request' ? 'RECORDED CLI EVIDENCE / REQUEST ONLY' : 'RECORDED CLI EVIDENCE / LOCAL REGTEST');
+    render(report, titles[key], key === 'request' ? 'RECORDED CLI EVIDENCE / REQUEST ONLY' : key === 'testnet' ? 'RECORDED CLI EVIDENCE / PUBLIC TESTNET' : 'RECORDED CLI EVIDENCE / LOCAL REGTEST');
     document.querySelectorAll('[data-case]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.case === key)));
   } catch (error) {
     if (token !== generation) return;

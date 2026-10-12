@@ -2,7 +2,7 @@
 
 [![Tests](https://github.com/ShalyX/zec-privacy-test-kit/actions/workflows/test.yml/badge.svg)](https://github.com/ShalyX/zec-privacy-test-kit/actions/workflows/test.yml)
 
-A local CLI that checks a ZIP-321 payment request, verifies a received shielded note using Zallet RPC or offline Zingo exports, and scans supplied app logs for synthetic leak markers. It writes a redacted JSON report. The read-only report command does not hold keys or submit payments, and the kit does not claim to measure every privacy leak.
+A local CLI that checks a ZIP-321 payment request, verifies a received shielded note using Zallet RPC or offline Zingo exports, inspects public-chain exposure in Zingo mode, and scans supplied app logs for synthetic leak markers. It writes a redacted JSON report. The read-only report command does not hold keys or submit payments, and the kit does not claim to measure every privacy leak.
 
 [Live evidence workbench](https://zec-privacy-test-kit.vercel.app/demo/) · [Source repository](https://github.com/ShalyX/zec-privacy-test-kit)
 
@@ -12,7 +12,7 @@ A local CLI that checks a ZIP-321 payment request, verifies a received shielded 
 
 On 2026-10-04, Zebra 6.4.2 and Zallet 0.1.0-beta.3 ran on an isolated regtest chain with NU6.3 active. A sender shielded coinbase funds, sent **0.01 regtest ZEC** to a separate receiver wallet, and the receiver decrypted a confirmed **Ironwood** note. The txid is `286f97d8e1daaf629d7d766b033f0989c15d987892fc94b71a4d8ab4e9345b93`. The local chain cannot be queried outside this machine; [evidence notes](EVIDENCE.md) record the RPC observations.
 
-The kit produced [a report with a planted leak](examples/sample-report.json) (`pass`, `pass`, `fail`) and [a clean control](examples/clean-report.json) (`pass`, `pass`, `pass`). Both checked the same real regtest payment. A second real transaction to a transparent receiver produced [a transparent failure report](examples/transparent-fail-report.json) (`fail`, `fail`, `pass`); Zebra exposed the 0.005 ZEC output amount and receiver address in `getrawtransaction`. A separate patched Zingo wallet completed the [public NU7 Testnet sender-to-receiver validation](PUBLIC_TESTNET_GATE.md) on October 12. Its saved recipient exports and a fresh public transaction API response produced [a redacted public Testnet report](examples/public-testnet-report.json) (`pass`, `pass`, `pass`) through the offline Zingo adapter. The canary pass in that report covers only the included clean sample log.
+The kit produced [a report with a planted leak](examples/sample-report.json) (`pass`, `pass`, `fail`) and [a clean control](examples/clean-report.json) (`pass`, `pass`, `pass`). Both checked the same real regtest payment. A second real transaction to a transparent receiver produced [a transparent failure report](examples/transparent-fail-report.json) (`fail`, `fail`, `pass`); Zebra exposed the 0.005 ZEC output amount and receiver address in `getrawtransaction`. A separate patched Zingo wallet completed the [public NU7 Testnet sender-to-receiver validation](PUBLIC_TESTNET_GATE.md) on October 12. Its saved recipient exports and a public transaction API response produced [a redacted public Testnet report](examples/public-testnet-report.json) (`pass`, `pass`, `pass`, `pass`) through the offline Zingo adapter. The public example additionally omits hashes derived from the private request, address, and account. The public-chain check found no transparent inputs, outputs, or cross-pool net value movement in that snapshot. The canary pass covers only the included clean sample log.
 
 ## Run
 
@@ -20,7 +20,7 @@ The kit produced [a report with a planted leak](examples/sample-report.json) (`p
 
 Open the [public evidence workbench](https://zec-privacy-test-kit.vercel.app/demo/). [Hosting notes](HOSTING.md) record the deployed version and verification.
 
-From the repository root, run `python -m http.server 8765 --bind 127.0.0.1`, then open [the local workbench](http://127.0.0.1:8765/demo/). The static demo displays the recorded shielded, planted-leak, transparent, and request-only CLI reports. It accepts schema v1/v2 JSON reports and scans pasted or uploaded UTF-8 logs for synthetic canaries in the browser. The scan export contains marker hashes and line numbers, without the raw log or markers. It uses no external assets, analytics, wallet connection, or upload API. Serve over localhost or HTTPS for SHA-256 support.
+From the repository root, run `python -m http.server 8765 --bind 127.0.0.1`, then open [the local workbench](http://127.0.0.1:8765/demo/). The static demo displays recorded local shielded, public Testnet, planted-leak, transparent, and request-only CLI reports. It accepts schema v1/v2 JSON reports and scans pasted or uploaded UTF-8 logs for synthetic canaries in the browser. The scan export contains marker hashes and line numbers, without the raw log or markers. It uses no external assets, analytics, wallet connection, or upload API. Serve over localhost or HTTPS for SHA-256 support.
 
 The demo displays supplied wallet evidence; it does not independently repeat wallet observations. Browser scans test only supplied text. The public Testnet payment gate passed separately with recipient-wallet observation. See [demo notes](demo/README.md) for packaging and verification.
 
@@ -28,7 +28,7 @@ Python 3.10+ is required. The Zallet path needs a running loopback JSON-RPC endp
 
 ### Public Testnet report from Zingo exports
 
-Export `addresses`, `notes`, and `height` JSON from the same recipient Zingo wallet into a private directory. Save a transaction JSON response from a public chain API in that directory as `chain.json`. The current adapter accepts the ZecBlock Testnet transaction response shape, including `data.txid`, `data.blockHeight`, `data.isCanonical`, `data.status`, and `data.hasIronwood`. Fetch it separately; the kit never contacts the API itself. Keep the ZIP-321 URI in a private file. For the October 12 run, the public snapshot came from [the ZecBlock Testnet transaction endpoint](https://api.testnet.zecblock.com/v1/transactions/6579de562af0c6800f80eac2bb163625b24df7a71040c96aa0a22a9415e1e0ab).
+Export `addresses`, `notes`, and `height` JSON from the same recipient Zingo wallet into a private directory. Save a transaction JSON response from a public chain API in that directory as `chain.json`. The current adapter accepts the ZecBlock Testnet transaction response shape, including transaction identity, canonical status, transparent input/output counts and arrays, shielded-pool flags, and per-pool value balances. Fetch it separately; the kit never contacts the API itself. Keep the ZIP-321 URI in a private file. For the October 12 run, the public snapshot came from [the ZecBlock Testnet transaction endpoint](https://api.testnet.zecblock.com/v1/transactions/6579de562af0c6800f80eac2bb163625b24df7a71040c96aa0a22a9415e1e0ab).
 
 ```sh
 python3 ztestkit.py \
@@ -44,7 +44,7 @@ python3 ztestkit.py \
   --report /private/report.json
 ```
 
-The address must match the wallet export, the external note must match the account, transaction, amount, and confirmed block, and the wallet scan must reach that block. A missing or mismatched public snapshot remains `unverified`. The three Zingo exports and `--network testnet` are required together; Zallet RPC flags cannot be combined with them. Keep raw exports, full addresses, and wallet files outside the repository. Review the redacted report before sharing it.
+The address must match the wallet export, the external note must match the account, transaction, amount, and confirmed block, and the wallet scan must reach that block. The `public_chain_exposure` check fails when the same canonical transaction has visible transparent inputs or outputs, or nonzero public net balances in multiple shielded pools. Missing or inconsistent explorer fields remain `unverified`. Its report includes counts and pool names, never transparent addresses or values. A single pool's nonzero balance may reflect the public fee and does not by itself fail. [ZIP 224](https://zips.z.cash/zip-0224) and [ZIP 318](https://zips.z.cash/zip-0318) describe public value balances and cross-pool movement. The three Zingo exports and `--network testnet` are required together; Zallet RPC flags cannot be combined with them. Keep raw exports, full addresses, and wallet files outside the repository. Review the redacted report before sharing it.
 
 From a clean checkout, run the request and log checks without a wallet:
 

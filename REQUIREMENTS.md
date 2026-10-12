@@ -13,6 +13,7 @@ Canonical direction: [project brief](PROJECT_BRIEF.md). Official event rules and
 | R-04 | Builder supplies app output/logs with unique synthetic canaries. | Kit finds a planted canary in a leaky log/output and reports the location without copying sensitive values into a public report. | No log supplied means `not tested`. | Required | M-03 | Red/green demo. |
 | R-05 | Builder exports a report. | Every check has pass/fail/unverified, evidence source, reproduction steps, and explicit privacy boundary; public export is redacted by default. | Incomplete evidence is visibly marked. | Required | M-03 | Independent rerun and report review. |
 | R-06 | Builder runs kit from a clean checkout. | Documented setup and sample work without mainnet money; no seed or spending key is committed or sent to an app server. | Missing tools/dependencies produce useful setup errors. | Required | M-04 | Clean-session QA and secret scan. |
+| R-07 | Builder checks public-chain exposure for a Testnet receipt. | For the same canonical transaction, report transparent input/output counts and whether public net value balances span multiple shielded pools without exporting raw addresses or amounts. | Missing, conflicting, or unsupported explorer fields yield `unverified`; observed exposure yields `fail`. | Added | M-04 | [Public report](examples/public-testnet-report.json) and negative fixtures. |
 
 ## Competition compliance
 

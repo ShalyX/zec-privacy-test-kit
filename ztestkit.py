@@ -239,6 +239,115 @@ def observe(wallet, txid, expected_zat, account_uuid):
     return result
 
 
+def read_evidence_json(path, label):
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, UnicodeError) as exc:
+        # Parser details may include wallet data. Do not echo them.
+        raise CheckError(f"Invalid {label} JSON") from exc
+
+
+def zingo_preflight(payment, addresses):
+    if not isinstance(addresses, list) or not all(isinstance(item, dict) for item in addresses):
+        raise CheckError("Invalid Zingo addresses export")
+    address = payment["address"]
+    matches = [item for item in addresses if item.get("encoded_address") == address]
+    evidence = {"address_sha256": digest(address), "network_hint": network_hint(address),
+                "wallet_address_match": bool(matches), "memo_present": payment["memo_present"],
+                "label_present": payment["label_present"], "message_present": payment["message_present"]}
+    if address.startswith(("t1", "t2", "tm")):
+        status, reason = "fail", "Transparent-only recipient reveals output address and amount"
+    elif not matches:
+        status, reason = "fail", "Requested address is absent from the recipient wallet export"
+    elif network_hint(address) != "testnet":
+        status, reason = "unverified", "Zingo adapter currently validates Testnet addresses only"
+    elif type(matches[0].get("account")) is not int or matches[0]["account"] < 0:
+        status, reason = "unverified", "Recipient wallet export lacks a valid account ID"
+    else:
+        status, reason = "pass", "Recipient wallet export derives the requested Testnet address"
+        evidence["account_sha256"] = digest(str(matches[0].get("account")))
+    return {"check": "recipient_preflight", "payment_index": payment["index"],
+            "status": status, "reason": reason, "evidence": evidence,
+            "evidence_source": "ZIP-321 request and recipient Zingo addresses JSON export",
+            "reproduce": "Export addresses from the same recipient wallet and compare the requested address locally.",
+            "privacy_boundary": "Address derivation alone does not prove a payment was received or shielded."}
+
+
+def zingo_observe(payment, txid, account_id, notes, height, chain):
+    if not re.fullmatch(r"[0-9a-fA-F]{64}", txid):
+        raise CheckError("txid must be 64 hex characters")
+    if not isinstance(notes, dict) or not isinstance(height, dict):
+        raise CheckError("Invalid Zingo notes or height export")
+    wallet_height = height.get("height")
+    if type(wallet_height) is not int or wallet_height < 0:
+        raise CheckError("Invalid Zingo wallet height")
+    evidence = {"txid": txid, "wallet_height": wallet_height}
+    result = {"check": "recipient_observation", "status": "unverified", "evidence": evidence,
+              "evidence_source": "Recipient Zingo notes and height JSON exports; operator-supplied public-chain JSON snapshot",
+              "reproduce": "Re-export notes and height from the same recipient wallet; save a fresh public transaction JSON response and rerun.",
+              "privacy_boundary": "Local exports and an operator-supplied API response are snapshots. This does not prove network-wide privacy or current chain state."}
+    if type(account_id) is not int or account_id < 0:
+        result["reason"] = "Recipient account ID is missing from the wallet address export"
+        return result
+    if chain is None:
+        result["reason"] = "No independent public-chain snapshot supplied"
+        return result
+    if not isinstance(chain, dict) or not isinstance(chain.get("data"), dict):
+        raise CheckError("Invalid public-chain snapshot")
+    public = chain["data"]
+    chain_height = public.get("blockHeight")
+    try:
+        chain_height = int(chain_height) if type(chain_height) in (str, int) else None
+    except ValueError:
+        chain_height = None
+    public_txid = public.get("txid")
+    canonical = (isinstance(public_txid, str) and public_txid.lower() == txid.lower() and
+                 public.get("isCanonical") is True and public.get("status") == "confirmed" and
+                 public.get("hasIronwood") is True and chain_height is not None and chain_height > 0)
+    evidence["public_chain_canonical_match"] = canonical
+    if not canonical:
+        result["reason"] = "Public-chain snapshot does not confirm this canonical Ironwood transaction"
+        return result
+    evidence["block_height"] = chain_height
+    if wallet_height < chain_height:
+        result["reason"] = "Recipient wallet scan has not reached the confirmed block"
+        return result
+    received = []
+    for pool in ("ironwood", "orchard", "sapling"):
+        section = notes.get(f"{pool}_notes", {})
+        if not isinstance(section, dict) or not isinstance(section.get("note_summaries", []), list):
+            raise CheckError("Invalid Zingo notes export")
+        for note in section.get("note_summaries", []):
+            if not isinstance(note, dict):
+                raise CheckError("Invalid Zingo notes export")
+            note_txid = note.get("txid")
+            if isinstance(note_txid, str) and note_txid.lower() == txid.lower() and note.get("scope") == "external" and note.get("account_id") == account_id:
+                received.append((pool, note))
+    evidence["received_output_count"] = len(received)
+    if not received:
+        result["reason"] = "No external note for this transaction and recipient account in the supplied wallet export"
+        return result
+    confirmed = []
+    for pool, note in received:
+        match = re.fullmatch(r"confirmed at block height ([1-9][0-9]*)", str(note.get("status", "")))
+        if match and int(match.group(1)) == chain_height:
+            confirmed.append((pool, note))
+    if not confirmed:
+        result["reason"] = "Recipient note is not confirmed at the public transaction block"
+        return result
+    matching = [(pool, note) for pool, note in confirmed if type(note.get("value")) is int and
+                note["value"] == payment["amount_zat"]]
+    evidence["matching_shielded_output_count"] = len(matching)
+    evidence["matching_pools"] = sorted({pool for pool, _ in matching})
+    if matching:
+        result["status"] = "pass"
+        result["reason"] = "Recipient wallet decrypted a matching confirmed shielded Testnet note"
+    else:
+        result["status"] = "fail"
+        result["reason"] = "Confirmed recipient note amount does not match the payment request"
+    return result
+
+
 def scan_canaries(log_paths, canary_path):
     canaries = [line.strip() for line in Path(canary_path).read_text(encoding="utf-8").splitlines() if line.strip()]
     if not canaries:
@@ -285,9 +394,9 @@ def annotate_checks(checks):
         elif check["check"] == "canary_leak" and check.get("status") == "unverified":
             source = "No complete canary and log input supplied"
             reproduce = "Supply a synthetic canary file and at least one app log."
-        check["evidence_source"] = source
-        check["reproduce"] = reproduce
-        check["privacy_boundary"] = boundary
+        check.setdefault("evidence_source", source)
+        check.setdefault("reproduce", reproduce)
+        check.setdefault("privacy_boundary", boundary)
     return checks
 
 
@@ -300,6 +409,10 @@ def main(argv=None):
     parser.add_argument("--rpc-cookie", type=Path, help="Recipient Zallet cookie file")
     parser.add_argument("--txid", help="Transaction ID to verify in the recipient wallet")
     parser.add_argument("--account-uuid", help="Expected recipient wallet account UUID")
+    parser.add_argument("--zingo-addresses-file", type=Path, help="Recipient Zingo addresses JSON export")
+    parser.add_argument("--zingo-notes-file", type=Path, help="Recipient Zingo notes JSON export")
+    parser.add_argument("--zingo-height-file", type=Path, help="Recipient Zingo height JSON export")
+    parser.add_argument("--chain-proof-file", type=Path, help="Saved public-chain transaction JSON snapshot")
     parser.add_argument("--canary-file", type=Path, help="One synthetic canary per line")
     parser.add_argument("--log", type=Path, action="append", default=[], help="App log to scan")
     parser.add_argument("--report", type=Path, required=True, help="Output JSON path")
@@ -309,6 +422,14 @@ def main(argv=None):
     try:
         uri = args.uri_file.read_text(encoding="utf-8").strip() if args.uri_file else args.uri
         payments = parse_uri(uri)
+        zingo_files = (args.zingo_addresses_file, args.zingo_notes_file, args.zingo_height_file)
+        zingo_mode = any(zingo_files)
+        if zingo_mode and (not all(zingo_files) or args.rpc_url or args.rpc_cookie or args.account_uuid):
+            raise CheckError("Provide all three Zingo exports without wallet RPC or account UUID")
+        if args.chain_proof_file and not zingo_mode:
+            raise CheckError("Public-chain snapshot requires Zingo exports")
+        if zingo_mode and args.network != "testnet":
+            raise CheckError("Zingo export mode requires --network testnet")
         if bool(args.rpc_url) != bool(args.rpc_cookie):
             raise CheckError("Provide both --rpc-url and --rpc-cookie")
         if args.rpc_url:
@@ -323,12 +444,27 @@ def main(argv=None):
             except ValueError as exc:
                 raise CheckError("Invalid RPC port") from exc
         wallet = WalletRpc(args.rpc_url, args.rpc_cookie) if args.rpc_url else None
-        checks = preflight(payments, wallet)
-        if args.txid:
+        if zingo_mode:
+            if len(payments) != 1 or payments[0]["amount_zat"] is None or not args.txid:
+                raise CheckError("Zingo observation needs one payment with an amount and --txid")
+            addresses = read_evidence_json(args.zingo_addresses_file, "Zingo addresses")
+            notes = read_evidence_json(args.zingo_notes_file, "Zingo notes")
+            height = read_evidence_json(args.zingo_height_file, "Zingo height")
+            chain = read_evidence_json(args.chain_proof_file, "public-chain snapshot") if args.chain_proof_file else None
+            checks = [zingo_preflight(payments[0], addresses)]
+            if payments[0]["label_present"] or payments[0]["message_present"]:
+                checks.append({"check": "uri_metadata", "payment_index": payments[0]["index"],
+                               "status": "fail", "reason": "URI carries human-readable metadata; sharing it exposes context"})
+            matched_addresses = [item for item in addresses if item.get("encoded_address") == payments[0]["address"]]
+            account_id = matched_addresses[0].get("account") if matched_addresses else None
+            checks.append(zingo_observe(payments[0], args.txid, account_id, notes, height, chain))
+        else:
+            checks = preflight(payments, wallet)
+        if args.txid and not zingo_mode:
             if not wallet or not args.account_uuid or len(payments) != 1 or payments[0]["amount_zat"] is None:
                 raise CheckError("Observation needs wallet RPC, account UUID, and one payment with an amount")
             checks.append(observe(wallet, args.txid, payments[0]["amount_zat"], args.account_uuid))
-        else:
+        elif not args.txid:
             checks.append({"check": "recipient_observation", "status": "unverified",
                            "reason": "No transaction ID supplied"})
         if args.canary_file and args.log:

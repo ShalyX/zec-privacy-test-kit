@@ -8,6 +8,6 @@ Report upload validates schema version, check names, statuses, evidence objects 
 
 The canary scan deduplicates trimmed nonempty markers, matches them literally per line, and exports SHA-256 hashes with file index and line number. Use up to 100 synthetic markers and a UTF-8 log under 2 MB. Values stay in page memory; there is no persistence or upload endpoint. SHA-256 needs localhost or HTTPS. Only supplied text is covered; it is not a wallet or network privacy test.
 
-Verified 2026-10-08 in the Codex browser: all four case selections, real schema v2 report upload, planted marker failure at line 2, clean control pass, redacted evidence display, and desktop/narrow visual inspection at 390 px with no horizontal overflow. No browser console errors were observed. Public hosting and a two-minute video remain pending.
+Verified 2026-10-08 in the Codex browser: all four case selections, real schema v2 report upload, planted marker failure at line 2, clean control pass, redacted evidence display, and desktop/narrow visual inspection at 390 px with no horizontal overflow. No browser console errors were observed. Public hosting is live; a two-minute video remains pending. The October 12 public Testnet payment proof is linked from the hero as separate wallet evidence.
 
-For static hosting, publish the repository's public files with `/demo/` as the demo entry. The setup guide link currently points to `../README.md`; preserve that path or replace it with the public repository URL when publishing.
+For static hosting, publish the repository's public files with `/demo/` as the demo entry. The setup guide links to the public repository README.

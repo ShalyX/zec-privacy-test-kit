@@ -89,7 +89,7 @@ Exit codes: `0` all checks pass, `1` at least one check fails, `3` no failures b
 
 The exported report hashes request, address, account, and canary identifiers. It omits the request amount, memo, raw canary, raw log filename, keys, and viewing material. A testnet/regtest txid and confirmation count are included as evidence. Each check states its evidence source, rerun steps, and privacy boundary. `--network` is recorded as an operator assertion. Input files and Zallet RPC traffic remain local; the tool cannot detect leaks in surfaces it was not given. Existing regtest reports in `examples/` use schema version 1; new runs use version 2.
 
-This parser covers ZEC ZIP-321 requests; required `req-` extensions, including custom assets, fail closed. Wallet RPC validation supplies address validity. The core `ztestkit.py` command remains read-only; `scenario_runner.py` is the explicit regtest-only sender. Public Testnet proof remains blocked by wallet NU7 support.
+This parser covers ZEC ZIP-321 requests; required `req-` extensions, including custom assets, fail closed. Wallet RPC validation supplies address validity. The core `ztestkit.py` command remains read-only; `scenario_runner.py` is the explicit regtest-only sender. The separate public NU7 sender-to-receiver proof used a patched Zingo wallet; this kit's Zallet RPC adapter remains validated on regtest.
 
 Standards and runtime: [ZIP 321](https://zips.z.cash/zip-0321), [ZIP 316](https://zips.z.cash/zip-0316), [Zallet](https://github.com/zcash/zallet), [Zebra](https://github.com/ZcashFoundation/zebra).
 

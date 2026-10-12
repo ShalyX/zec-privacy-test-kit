@@ -208,6 +208,7 @@ h1 em {
 .trace-step code { color: #a9ada5; font: 10px Consolas, monospace; }
 .scope-note { margin: 0; padding: 17px 60px 0 0; border-top: 1px solid #50534d; color: #a9ada5; font: 10px/1.55 Consolas, monospace; }
 .scope-note span { display: block; margin-bottom: 4px; color: var(--gold); letter-spacing: 1.2px; }
+.scope-note a { color: var(--gold); text-underline-offset: 3px; }
 @keyframes scan-line { 0% { transform: translateY(-110%); } 48%, 100% { transform: translateY(270%); } }
 
 .desk { border-top: 1px solid var(--ink); scroll-margin-top: 20px; }

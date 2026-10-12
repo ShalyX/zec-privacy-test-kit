@@ -18,6 +18,7 @@ Updated: **2026-10-12, Africa/Lagos**. Lifecycle: **M-01b public Testnet payment
 
 | Item | Evidence | Date |
 |---|---|---|
+| Offline Zingo evidence adapter passed public Testnet | The read-only CLI matched the private receiver address export, confirmed Ironwood note and wallet scan against a fresh ZecBlock transaction snapshot. [Redacted report](examples/public-testnet-report.json) has three passes; the canary pass covers the supplied clean sample log. All 25 tests pass. | Oct 12 |
 | Public NU7 sender-to-receiver payment passed | Valar funding txid `998c8011…924cefe` confirmed at height 4,490,320; copied sender showed 0.125 TAZ spendable. A single 0.001 TAZ Ironwood payment, txid `6579de56…e1e0ab`, confirmed at height 4,490,357; the independent receiver wallet saw the matching confirmed, unspent 100,000-zatoshi note. Original wallet files stayed unchanged. [Gate record](PUBLIC_TESTNET_GATE.md). | Oct 12 |
 | Patched NU7 wallet scan and chain lookup completed | Isolated source build accepted Testnet NU7. A full rescan of the copied sender from height 4,465,091 to 4,481,850 found no notes or balance. Both the old and fresh Fauzec txids were absent from a public node and independent explorer despite Fauzec's `confirmed` status. No payment was sent; the gate remains unverified. [Gate record](PUBLIC_TESTNET_GATE.md). | Oct 9 |
 | ZECATHON registration completed and rewards confirmed | User's direct confirmation in this chat; receipt/details not independently inspected. | Oct 4 |
@@ -42,13 +43,13 @@ Updated: **2026-10-12, Africa/Lagos**. Lifecycle: **M-01b public Testnet payment
 
 ## Uncertainty and next action
 
-The Oct 12 Valar funding claim appeared on the public NU7 chain, and the patched Zingo build completed the sender-to-receiver payment with independent receiver observation. This closes R-03b. Earlier Fauzec claims remain absent from the checked public chain; the separate public Zingo run does not establish public Testnet compatibility for the kit's Zallet RPC report adapter. See the [gate record](PUBLIC_TESTNET_GATE.md).
+The Oct 12 Valar funding claim appeared on the public NU7 chain, and the patched Zingo build completed the sender-to-receiver payment with independent receiver observation. This closes R-03b. The offline Zingo adapter now turns the saved receiver evidence into a redacted report. Earlier Fauzec claims remain absent from the checked public chain; the run does not establish public Testnet compatibility for the kit's Zallet RPC adapter. See the [gate record](PUBLIC_TESTNET_GATE.md).
 
 Public demo hosting passed on Oct 8: https://zec-privacy-test-kit.vercel.app/demo/. The stable URL loaded without sign-in and the hosted planted canary scan detected its marker. Public source is available at https://github.com/ShalyX/zec-privacy-test-kit. See [hosting notes](HOSTING.md). The two-minute video remains pending.
 
 The browser evidence workbench is built in `demo/`: four recorded cases, schema v1/v2 report upload, evidence and reproduction disclosure, browser-local canary scan and redacted scan export. Desktop and 390 px layouts plus sample cases, report upload and planted/clean scan controls were verified on Oct 8. Public hosting and the repository URL are live; the video remains pending. The browser build displays supplied evidence and does not repeat wallet observations.
 
-M-01b is passed through the patched Zingo public Testnet payment and receiver scan. The local regtest report proof remains the evidence for the kit's Zallet RPC adapter. Inspect registered-only submission fields before final packaging.
+M-01b is passed through the patched Zingo public Testnet payment, receiver scan, and offline kit report. The local regtest proof remains the evidence for the Zallet RPC adapter. Inspect registered-only submission fields before final packaging.
 
 **Next action:** finish M-05: produce the two-minute demo video, prepare exact submission copy, and check registered-only submission fields. The public demo and source repository are live; local Git history records the code and evidence slices.
 

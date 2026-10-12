@@ -1,6 +1,6 @@
 # Architecture
 
-Linked [brief](PROJECT_BRIEF.md), [requirements](REQUIREMENTS.md), and [resource research](RESEARCH_AND_RESOURCES.md). The first local transaction is recorded in [evidence](EVIDENCE.md); public Testnet remains to be verified.
+Linked [brief](PROJECT_BRIEF.md), [requirements](REQUIREMENTS.md), and [resource research](RESEARCH_AND_RESOURCES.md). The first local transaction is recorded in [evidence](EVIDENCE.md); the confirmed public NU7 Testnet run is recorded in the [gate](PUBLIC_TESTNET_GATE.md) and [redacted report](examples/public-testnet-report.json).
 
 ## System
 
@@ -12,15 +12,15 @@ test wallet ─→ Zcash send ─→ recipient wallet scan ─────┤
 optional synthetic app logs ─→ local canary scanner ────┘
 ```
 
-- **CLI-first runner:** Python standard-library CLI accepts a request, recipient wallet RPC observation, and optional log path; it writes a local JSON report. A polished UI is optional after the end-to-end run works.
+- **CLI-first runner:** Python standard-library CLI accepts a request, recipient wallet RPC or saved Zingo evidence, and optional log path; it writes a local JSON report. The browser workbench displays supplied reports.
 - **Request parser:** uses standard ZIP-321 handling and Zcash address parsing rather than string prefixes alone. It records requested network, amount, memo presence, and receiver capabilities.
-- **Wallet adapter:** `ztestkit.py` uses read-only Zallet JSON-RPC over loopback. The wallet retains spending authority; the kit consumes validated address information, sync state, and sanitized transaction observations. A separate recipient wallet confirms receipt.
+- **Wallet adapters:** `ztestkit.py` uses read-only Zallet JSON-RPC over loopback or saved Zingo addresses, notes, and height JSON exports. The Zingo path also checks an operator-supplied public-chain snapshot. The wallet retains spending authority; the kit writes only sanitized observations. A separate recipient wallet confirms receipt.
 - **Regtest scenario runner:** `scenario_runner.py` is the explicit sending boundary. It accepts private values through files, rejects non-loopback RPC, verifies the regtest genesis block before touching the sender wallet, requires a wallet-validated shielded recipient, submits with `FullPrivacy`, mines one local block, and feeds the resulting txid into the read-only report engine.
 - **Submission checkpoint:** records only request hash, state, operation ID and txid. It writes the pre-call `submission_started` state atomically, reuses saved txids, polls saved operations without consuming their result, and blocks retries after ambiguous transport or operation outcomes. Recovery requires the separate recipient wallet to decrypt a matching shielded output before the checkpoint can bind to a txid.
 - **Observation adapter:** records txid, block/confirmation state, public transparent outputs when available, and recipient wallet's received-note observation. A txid alone cannot prove a shielded payment's recipient or amount.
 - **Canary scanner:** scans only files the builder explicitly supplies for synthetic order IDs, addresses, and memo markers. Report exports include hashes/locations or redacted snippets, never raw seeds, full viewing keys, or private memo values.
 
-Zcash integration is essential: ZIP-321 inputs, Zcash receiver semantics, a real shielded transfer, and wallet scan evidence. The local regtest path is verified; public Testnet remains a separate gate. The kit must not substitute a simulated transaction for that path.
+Zcash integration is essential: ZIP-321 inputs, Zcash receiver semantics, a real shielded transfer, and wallet scan evidence. The local regtest path and separate public NU7 Testnet gate have both passed. The kit does not substitute a simulated transaction for either path.
 
 ## Data and privacy boundaries
 
@@ -30,9 +30,9 @@ Wallet seeds and spend keys remain in a local test wallet under `work/` during d
 
 ## Runtime and deployment
 
-Initial runtime: Python 3.10+ CLI, with the official Zebra and Zallet Linux binaries running under WSL for the local proof. Rust was unavailable on this machine. Final public artifact should run from a clean documented checkout; a hosted read-only sample report may be added only after the core flow works. Judges need a concise quickstart and a recorded public Testnet run.
+Runtime: Python 3.10+ CLI. Official Zebra and Zallet Linux binaries under WSL supplied the local regtest proof. An isolated patched Zingo build supplied the public NU7 Testnet proof. The read-only browser demo and source are public; the CLI runs from a clean documented checkout.
 
-Unknowns: public Testnet funding and sync, behavior across the coming NU7 Testnet activation, and wallet-version behavior for Unified Address validation. Network privacy, remote RPC metadata exposure, and off-device logs are outside the kit's guarantee unless explicitly tested.
+Unknowns: compatibility of unpatched wallet releases with active NU7 Testnet, and wallet-version behavior for Unified Address validation. Network privacy, remote RPC metadata exposure, and off-device logs are outside the kit's guarantee unless explicitly tested.
 
 ## Technical decisions
 

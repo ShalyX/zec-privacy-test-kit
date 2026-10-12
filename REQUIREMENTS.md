@@ -37,5 +37,5 @@ The authenticated submission form requires a project name (64 characters maximum
 ## Unresolved
 
 - Final field values, public URLs, and submitted receipt remain for M-05/M-06. The field list and two-minute video constraint were verified inside the registered account on 2026-10-05.
-- Current kit adapter: Zallet 0.1.0-beta.3 plus Zebra 6.4.2 on local regtest. A separate patched Zingo build passed the [public NU7 sender-to-receiver gate](PUBLIC_TESTNET_GATE.md); the kit's Zallet RPC adapter was not run on public Testnet.
+- Kit adapters: Zallet 0.1.0-beta.3 plus Zebra 6.4.2 on local regtest; saved recipient exports from a patched Zingo build plus an independent public-chain snapshot on NU7 Testnet. The [public sender-to-receiver gate](PUBLIC_TESTNET_GATE.md) and [redacted report](examples/public-testnet-report.json) passed. The Zallet RPC adapter was not run on public Testnet.
 - Network-level anonymity and leaks outside supplied surfaces are outside the verified claim.

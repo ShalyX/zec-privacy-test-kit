@@ -1,5 +1,13 @@
 # M-01b public Testnet validation gate
 
+## Public NU7 sender-to-receiver payment — 2026-10-12
+
+**Result: passed for R-03b.** A patched NU7-compatible Zingo CLI synced copied sender and receiver wallets on public Zcash Testnet through `https://testnet.zec.rocks:443`. The public node reported chain `test`, branch ID `0x77190ad9`, and a live height of **4,490,315** before funding. The Valar faucet independently reported itself ready and synced at that same height. Its 0.125 TAZ claim was accepted and yielded funding txid `998c8011e8316802992d27de85cd03ec27b554d8e0865aa23feaa1935924cefe`, which the public node confirmed in block **4,490,320**. Earlier Fauzec claims remained absent from that node and were not counted as funding.
+
+After sync, the sender wallet reported a **12,500,000-zatoshi confirmed Ironwood balance** and the same **12,500,000-zatoshi spendable balance**. A single `quicksend` sent **100,000 zatoshis (0.001 TAZ)** to the separately created receiver. It returned txid `6579de562af0c6800f80eac2bb163625b24df7a71040c96aa0a22a9415e1e0ab`; the public node placed that txid in block **4,490,357**. The independent [ZecBlock Testnet API](https://api.testnet.zecblock.com/v1/transactions/6579de562af0c6800f80eac2bb163625b24df7a71040c96aa0a22a9415e1e0ab) also marked it canonical and confirmed at that height, with an Ironwood action and **10,000-zatoshi fee**. A separate receiver-wallet sync reached height **4,490,359**, matched the pre-recorded receiver address, and reported the same txid as `confirmed`, `received`, with one **unspent 100,000-zatoshi Ironwood note**. Its confirmed Ironwood balance was 100,000 zatoshis. This is direct recipient observation, not merely a broadcast acknowledgement.
+
+The wallet build was the isolated Zingo `zingolib_v6.0.0` commit `c6381534f802b1022041beda4b01c106ad132329` with the Testnet NU7 backport from ZECKED commit `b247aaa7797b731a375aa97b7fa0fe9722df586d`; `zcash_protocol` tests passed 36/36 during the October 9 build. It used `clearnet-test-mode`, so the public indexer could see this machine's IP. Both original wallet files were hash-checked unchanged after the run. Seeds, wallet files, full addresses, and raw private CLI output remain outside this repository. The public evidence here proves the payment path on current Testnet; the published kit's Zallet RPC adapter and report generator were validated separately on local regtest, not against this patched Zingo wallet.
+
 ## NU7 source-build rerun - 2026-10-09
 
 **Result: unverified.** An isolated Zingo CLI source build accepted the active NU7 Testnet branch and completed a full sender-wallet scan, but found no funded note. No payment was proposed or broadcast.

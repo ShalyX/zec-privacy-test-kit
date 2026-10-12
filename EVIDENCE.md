@@ -21,7 +21,7 @@ Recorded 2026-10-04. This is **local regtest**, not public Testnet. The chain st
 
 Zallet's `z_getaddressforaccount` response listed Orchard, Sapling, and transparent receivers, while the confirmed receive was Ironwood. Its `validateaddress` returned `isvalid: false` for that freshly generated regtest Unified Address, although `z_listunifiedreceivers` decoded it and the payment succeeded. The kit therefore validates Unified Addresses with `z_listunifiedreceivers` before falling back to `validateaddress` for other types. This behavior needs additional wallet-version checks.
 
-The local run proves the shielded payment path, an actual transparent recipient failure, and the seeded log leak detection. It does not prove public Testnet compatibility, a clean setup on another machine, or protection against leaks outside supplied logs. The [public Testnet attempt](PUBLIC_TESTNET_GATE.md) found the chain already past NU7 activation and an incompatible light wallet; R-03b remains unverified.
+The local run proves the shielded payment path, an actual transparent recipient failure, and the seeded log leak detection. It does not prove a clean setup on another machine or protection against leaks outside supplied logs. A later [public Testnet run](PUBLIC_TESTNET_GATE.md) passed R-03b using a separate patched NU7-compatible Zingo wallet; the kit's Zallet RPC adapter was not exercised on that public wallet.
 
 ## M-03 guarded scenario rerun — 2026-10-05
 

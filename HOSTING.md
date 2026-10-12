@@ -8,6 +8,6 @@ Published payload: the `demo/` static files, root README, MIT license, and a roo
 
 Public source: https://github.com/ShalyX/zec-privacy-test-kit
 
-Browser verification: the stable public URL loaded without sign-in; the shielded report displayed three passes; the browser-local planted canary scan found one marker location and displayed a failure. No wallet connection or transaction was attempted. Public Testnet remains unverified in the tested wallet builds.
+Browser verification: the stable public URL loaded without sign-in; the shielded report displayed three passes; the browser-local planted canary scan found one marker location and displayed a failure. No wallet connection or transaction was attempted in the browser. The separate [public Testnet payment gate](PUBLIC_TESTNET_GATE.md) passed on October 12 with a patched wallet build.
 
 The in-app browser is open to the public demo. Next submission assets: two-minute video, final description and receipt.

@@ -35,6 +35,6 @@ Uninspected: organizer-linked workshops, any registered-only submission brief, f
 
 | Assumption | Status | Smallest test | Consequence if false |
 |---|---|---|---|
-| We can fund and send one genuine shielded payment. | **Verified on local regtest** with a separate receiver and confirmed Ironwood note. Public Testnet remains unverified. | M-01b repeats this on public Testnet. | Revise external claim before submission if public path cannot be proven. |
+| We can fund and send one genuine shielded payment. | **Verified on local regtest and public NU7 Testnet** with separate receivers and confirmed Ironwood notes. [Public gate](PUBLIC_TESTNET_GATE.md). | The kit's Zallet RPC adapter was exercised on regtest; the public path used a patched Zingo wallet. | State these two evidence scopes clearly in submission claims. |
 | We can distinguish the actual transparent/shielded path from a UI label. | **Verified in local good and bad runs:** separate Ironwood receive and a transparent receive whose amount/address Zebra publicly exposed. | Repeat on public Testnet. | Narrow claim or change concept. |
 | Local canary scanning can catch app-level leaks without storing secrets. | **Verified for a literal synthetic marker** in a supplied log, with clean control and redacted report. | Expand to realistic app output and review false positives. | Narrow claim to literal supplied-file checks. |

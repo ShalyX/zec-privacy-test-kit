@@ -12,7 +12,7 @@ A local CLI that checks a ZIP-321 payment request, verifies a received shielded 
 
 On 2026-10-04, Zebra 6.4.2 and Zallet 0.1.0-beta.3 ran on an isolated regtest chain with NU6.3 active. A sender shielded coinbase funds, sent **0.01 regtest ZEC** to a separate receiver wallet, and the receiver decrypted a confirmed **Ironwood** note. The txid is `286f97d8e1daaf629d7d766b033f0989c15d987892fc94b71a4d8ab4e9345b93`. The local chain cannot be queried outside this machine; [evidence notes](EVIDENCE.md) record the RPC observations.
 
-The kit produced [a report with a planted leak](examples/sample-report.json) (`pass`, `pass`, `fail`) and [a clean control](examples/clean-report.json) (`pass`, `pass`, `pass`). Both checked the same real regtest payment. A second real transaction to a transparent receiver produced [a transparent failure report](examples/transparent-fail-report.json) (`fail`, `fail`, `pass`); Zebra exposed the 0.005 ZEC output amount and receiver address in `getrawtransaction`. [Public Testnet validation](PUBLIC_TESTNET_GATE.md) was attempted and remains unverified because the available wallet could not scan the active NU7 chain.
+The kit produced [a report with a planted leak](examples/sample-report.json) (`pass`, `pass`, `fail`) and [a clean control](examples/clean-report.json) (`pass`, `pass`, `pass`). Both checked the same real regtest payment. A second real transaction to a transparent receiver produced [a transparent failure report](examples/transparent-fail-report.json) (`fail`, `fail`, `pass`); Zebra exposed the 0.005 ZEC output amount and receiver address in `getrawtransaction`. A separate patched Zingo wallet completed the [public NU7 Testnet sender-to-receiver validation](PUBLIC_TESTNET_GATE.md) on October 12; the kit's Zallet RPC adapter was not run against that public wallet.
 
 ## Run
 
@@ -22,7 +22,7 @@ Open the [public evidence workbench](https://zec-privacy-test-kit.vercel.app/dem
 
 From the repository root, run `python -m http.server 8765 --bind 127.0.0.1`, then open [the local workbench](http://127.0.0.1:8765/demo/). The static demo displays the recorded shielded, planted-leak, transparent, and request-only CLI reports. It accepts schema v1/v2 JSON reports and scans pasted or uploaded UTF-8 logs for synthetic canaries in the browser. The scan export contains marker hashes and line numbers, without the raw log or markers. It uses no external assets, analytics, wallet connection, or upload API. Serve over localhost or HTTPS for SHA-256 support.
 
-The demo displays supplied wallet evidence; it does not independently repeat wallet observations. Browser scans test only supplied text. Public Testnet remains unverified. See [demo notes](demo/README.md) for packaging and verification.
+The demo displays supplied wallet evidence; it does not independently repeat wallet observations. Browser scans test only supplied text. The public Testnet payment gate passed separately with recipient-wallet observation. See [demo notes](demo/README.md) for packaging and verification.
 
 Python 3.10+ and a running Zallet JSON-RPC endpoint are required for live observation. Keep Zallet bound to loopback. Put the receiver wallet's `user:password` in a private file outside the project; Zallet's RPC cookie file may also be used while it exists. Do not pass credentials, seed phrases, or private memos on the command line.
 
